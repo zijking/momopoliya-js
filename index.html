@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2D Monopoly Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #board {
+            width: 880px;
+            height: 880px;
+            position: relative;
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 1px solid #999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            font-size: 10px;
+            text-align: center;
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        .color-box {
+            width: 100%;
+            height: 25%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .player {
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+
+        #roll {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div id="board"></div>
+        <button id="roll">🎲 Roll Dice</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const board = document.getElementById("board");
+        const status = document.getElementById("status");
+        const rollBtn = document.getElementById("roll");
+
+        const totalCells = 44;
+        let playerPosition = 0;
+
+        const cellSize = 80;
+        const boardSize = 880;
+        const cells = [];
+
+       
+
+        const landPlots = []; // 🔹 Масив для полів з landPlots.json
+        const companyPlots = []; // 🔹 Масив для полів з companyPlots.json
+        const mainAreas = []; // Основні поля
+
+        Promise.all([
+            fetch('./src/landPlots.json').then(res => res.json()),
+            fetch('./src/companyPlots.json').then(res => res.json()),
+            fetch('./src/mainAreas.json').then(res=>res.json())
+        ]).then(([lands, companies, mainAr]) => {
+            landPlots.push(...lands);
+            companyPlots.push(...companies);
+            mainAreas.push(...mainAr);
+
+            renderBoard();
+            updatePlayer();
+        });
+
+        function getCoordinates(position) {
+            if (position >= 0 && position < 11) return [boardSize - cellSize * (position + 1), boardSize - cellSize]; // bottom
+            if (position >= 11 && position < 21) return [0, boardSize - cellSize * (position - 9)]; // left
+            if (position >= 21 && position < 31) return [cellSize * (position - 20), 0]; // top
+            if (position >= 31 && position < 40) return [boardSize - cellSize, cellSize * (position - 30)]; // right
+            return [0, 0];
+        }
+
+        function placeCell(plot) {
+                const [x, y] = getCoordinates(plot.position);
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.style.left = `${x}px`;
+                cell.style.top = `${y}px`;
+
+                if (plot.color) {
+                    const colorBox = document.createElement("div");
+                    colorBox.className = "color-box";
+                    colorBox.style.backgroundColor = plot.color;
+                    cell.appendChild(colorBox);
+                }
+
+                const info = document.createElement("div");
+                info.style.zIndex = "1"; // Щоб був поверх кольору
+                info.innerHTML = `<strong>${plot.name || '#' + plot.position}</strong>`;
+                if (plot.cost) info.innerHTML += `<br>💰 ${plot.cost}`;
+                if (plot.rent) info.innerHTML += `<br>🏠 ${plot.rent}`;
+                cell.appendChild(info);
+
+                cell.dataset.index = plot.position;
+                board.appendChild(cell);
+                cells.push(cell);
+            }
+
+
+        function renderBoard() {
+            landPlots.forEach(placeCell);
+            companyPlots.forEach(placeCell);
+            mainAreas.forEach(placeCell);
+            console.log(companyPlots);
+        }
+
+        function updatePlayer() {
+            document.querySelectorAll(".player").forEach(el => el.remove());
+            const currentCell = document.querySelector(`.cell[data-index='${playerPosition}']`);
+            if (currentCell) {
+                const player = document.createElement("div");
+                player.className = "player";
+                currentCell.appendChild(player);
+            }
+        }
+
+        rollBtn.onclick = () => {
+            const dice = Math.ceil(Math.random() * 6);
+            status.textContent = `You rolled a ${dice}`;
+            playerPosition = (playerPosition + dice) % totalCells;
+            updatePlayer();
+        };
+    </script>
+</body>
+
+</html>
