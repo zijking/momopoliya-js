@@ -1,10 +1,7 @@
 const buildMap = () => {
 
-    console.log("js buildMap")
-    const board = document.getElementById("board");
-
-    const totalCells = 44;
-    let playerPosition = 0;
+    console.log("Start buildMap")
+    const board = document.getElementById("board");    
     
     const cellSize = 80;
     const boardSize = 880;
@@ -65,7 +62,7 @@ const buildMap = () => {
         landPlots.forEach(placeCell);
         companyPlots.forEach(placeCell);
         mainAreas.forEach(placeCell);
-        console.log(companyPlots);
+        // console.log(companyPlots);
     }
 
 }

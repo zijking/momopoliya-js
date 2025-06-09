@@ -55,5 +55,15 @@ body {
 }
 
 #roll {
-    margin-top: 20px;
+    color: brown;
+    }
+    
+    .conteinerNav {
+        margin-top: 10px;
+        display: flex;
+        align-items: baseline;
+    }
+    
+    .conteinerNav p {
+        margin: 0px 0px 0px 10px;
 }
