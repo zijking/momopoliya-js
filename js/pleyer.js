@@ -27,7 +27,7 @@ class Player {
             if (receiver) receiver.updateBalance(amount);
             return true;
         } else {
-            console.log(`${this.name} не має достатньо коштів!`);
+            alert(`${this.name} не має достатньо коштів!`);
             return false;
         }
     }

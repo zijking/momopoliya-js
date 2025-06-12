@@ -12,31 +12,31 @@
         "type": "parking"
     },
     {
-        "name": "Суд",
+        "name": "🚔<br>Суд",
         "position": 30,
         "cost": 0,
         "type": "court"
     },
     {
-        "name": "Тюрма",
+        "name": "🚔<br>Тюрма",
         "position": 10,
         "cost": 0,
         "type": "jail"
     },
     {
-        "name": "Шанс",
+        "name": "🎁<br>Шанс",
         "position": 7,
         "cost": 0,
         "type": "chance"
     },
     {
-        "name": "Шанс",
+        "name": "🎁<br>Шанс",
         "position": 22,
         "cost": 0,
         "type": "chance"
     },
     {
-        "name": "Шанс",
+        "name": "🎁<br>Шанс",
         "position": 33,
         "cost": 0,
         "type": "chance"
@@ -57,12 +57,12 @@
         "type": "budget"
     },
     {
-        "name": "Податок на дохід",
+        "name": "💸<br>Податок на дохід",
         "position": 38,
         "type": "tax"
     },
     {
-        "name": "Податок річний",
+        "name": "💸<br>Податок річний",
         "position": 4,
         "type": "tax"
     }
