@@ -1,3 +1,8 @@
+const landPlots = []; // 🔹 Масив для полів з landPlots.json
+const companyPlots = []; // 🔹 Масив для полів з companyPlots.json
+const mainAreas = []; // Основні поля
+const allPlots = []; // 🔹 Масив для всіх полів
+
 const buildMap = () => {
 
     console.log("Start buildMap")
@@ -5,11 +10,9 @@ const buildMap = () => {
     
     const cellSize = 80;
     const boardSize = 880;
-    const cells = [];
+    const cells = []; 
     
-    const landPlots = []; // 🔹 Масив для полів з landPlots.json
-    const companyPlots = []; // 🔹 Масив для полів з companyPlots.json
-    const mainAreas = []; // Основні поля
+
 
     Promise.all([
         fetch('./src/landPlots.json').then(res => res.json()),
@@ -20,6 +23,8 @@ const buildMap = () => {
         companyPlots.push(...companies);
         mainAreas.push(...mainAr);
 
+        allPlots.push(...landPlots, ...companyPlots, ...mainAreas);// 🔹 Об'єднуємо всі масиви в один
+        
         renderBoard();
         // updatePlayer();
     });
@@ -54,6 +59,7 @@ const buildMap = () => {
         cell.appendChild(info);
     
         cell.dataset.index = plot.position;
+        cell.dataset.mainCost = plot.cost;
         board.appendChild(cell);
         cells.push(cell);
     }
@@ -69,8 +75,11 @@ const buildMap = () => {
 
 
 
-
+const getAllPlots = () => {
+    return allPlots;
+};
 
 export default {
-    buildMap
+    buildMap,
+    getAllPlots
 }

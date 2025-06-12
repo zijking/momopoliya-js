@@ -1,8 +1,5 @@
 import map from './map.js'
-import player from './player.js';
+import { player } from './playerMove.js';
 
 map.buildMap();
-// player.startPosition();
-
 setTimeout(player.startPosition, 1500);
-;

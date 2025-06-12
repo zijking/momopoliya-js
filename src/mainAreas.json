@@ -1,58 +1,69 @@
 [
     {
-        "name":"Старт",      
-        "position":0
-
+        "name": "Старт",
+        "position": 0,
+        "cost": 0,
+        "type": "start"
     },
     {
-        "name":"Парковка",
-        "position":20
+        "name": "Парковка",
+        "position": 20,
+        "cost": 0,
+        "type": "parking"
     },
     {
-        "name":"Суд",
-        "position":30
+        "name": "Суд",
+        "position": 30,
+        "cost": 0,
+        "type": "court"
     },
     {
-        "name":"Тюрма",
-        "position":10
-    },    
-    {
-        "name":"Шанс",
-        "position":7
-        
+        "name": "Тюрма",
+        "position": 10,
+        "cost": 0,
+        "type": "jail"
     },
     {
-        "name":"Шанс",
-        "position":22
-        
+        "name": "Шанс",
+        "position": 7,
+        "cost": 0,
+        "type": "chance"
     },
     {
-        "name":"Шанс",
-        "position":33
-        
+        "name": "Шанс",
+        "position": 22,
+        "cost": 0,
+        "type": "chance"
     },
     {
-        "name":"Бюджет",
-        "position":2
-        
+        "name": "Шанс",
+        "position": 33,
+        "cost": 0,
+        "type": "chance"
     },
     {
-        "name":"Бюджет",
-        "position": 17
-        
-    },{
-        "name":"Бюджет",
-        "position":36
-        
+        "name": "Бюджет",
+        "position": 2,
+        "type": "budget"
     },
     {
-        "name":"Податок на дохід",
-        "position":38
-        
+        "name": "Бюджет",
+        "position": 17,
+        "type": "budget"
     },
     {
-        "name":"Податок річний",
-        "position":4
-        
+        "name": "Бюджет",
+        "position": 36,
+        "type": "budget"
+    },
+    {
+        "name": "Податок на дохід",
+        "position": 38,
+        "type": "tax"
+    },
+    {
+        "name": "Податок річний",
+        "position": 4,
+        "type": "tax"
     }
 ]
