@@ -11,9 +11,9 @@ document.getElementById("roll").addEventListener("click", () => {
 // Ініціалізація гравців
 const players = [
   new Player("Гравець 1", "🚗"),
-  new Player("Гравець 2", "🚢"),
-  new Player("Гравець 3", "🐶"),
-  new Player("Гравець 4", "🐱"),
+  new Player("Гравець 2", "✈️"),
+  new Player("Гравець 3", "🎈"),
+  new Player("Гравець 4", "🚢"),
 ];
 
 let currentPlayerIndex = 0;
@@ -177,13 +177,18 @@ export const player = {
     players.forEach((p, idx) => {
       const token = document.createElement("div");
       token.className = "player-token";
-      token.textContent = "";
-      token.dataset.playerIndex = idx;
-      const colors = ["green", "yellow", "red", "blue"];
-      token.style.width = "15px";
-      token.style.height = "15px";
-      token.style.borderRadius = "50%";
-      token.style.backgroundColor = colors[idx % colors.length];
+      token.textContent = '';
+        token.dataset.playerIndex = idx;
+        
+        const colors = ["green", "yellow", "red", "blue"];
+        
+      token.style.width = "25px";
+      token.style.height = "25px";
+        token.style.borderRadius = "50%";
+        token.style.borderBottom = `2px solid ${colors[idx % colors.length]}`;
+        token.innerHTML = p.emoji; // Додаємо емодзі гравця
+        // token.style.backgroundColor = colors[idx % colors.length];
+        
       token.style.display = "inline-block";
       p.tokenElement = token;
       startCell.appendChild(token);
