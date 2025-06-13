@@ -1,12 +1,22 @@
 import Player from "./pleyer.js";
 import map from "./map.js";
-import { showModal, showModalWithChoices } from './modal.js';
-
+import { showModal, showModalWithChoices } from "./modal.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
   handleTurn();
 });
+
+const randomPlayers = [
+  { name: "Астронавт", emoji: "👨‍🚀" },
+  { name: "Інопланетянин", emoji: "👽" },
+  { name: "Робот", emoji: "🤖" },
+  { name: "Зоряний Капітан", emoji: "🧑‍✈️" },
+  { name: "Космічний Пес", emoji: "🐕‍🦺" },
+  { name: "Марсіянин", emoji: "🛸" },
+  { name: "Галактичний Кіт", emoji: "🐱" },
+  { name: "Супутник", emoji: "🛰️" }
+];
 
 // Ініціалізація гравців
 const players = [
@@ -26,20 +36,41 @@ function getCurrentPlayer() {
 // Функція для переходу до наступного ходу
 function nextTurn() {
   currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
- }
+}
 
 // Функція для оновлення інформації про гравців
 function updateUI() {
-  const info = players
-    .map(
-      (p) =>
-        `<br/>${p.emoji} ${p.name}: $${p.balance} | Власність: ${
-          p.properties.map((prop) => prop.name).join("; ") || "немає"
-        }`
-    )
-    .join();
+  const status = document.getElementById("status");
+  status.innerHTML = ""; // Очищаємо
 
-  document.getElementById("status").innerHTML = info;
+  players.forEach((p) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "player-info";
+
+    // Основна частина — емоджі, ім'я, баланс
+    wrapper.innerHTML = `
+          <div class="player-summary">
+              <span class="emoji">${p.emoji}</span>
+              <span class="name">${p.name}</span>
+              <span class="balance">💰 ${p.balance}</span>
+          </div>
+      `;
+
+    // Додатковий блок з власністю (при наведенні)
+    const propBlock = document.createElement("div");
+    propBlock.className = "player-properties";
+
+    if (p.properties.length > 0) {
+      propBlock.innerHTML = p.properties
+        .map((prop) => `• ${prop.name} (${prop.cost}$)`)
+        .join("<br/>");
+    } else {
+      propBlock.textContent = "немає власності";
+    }
+
+    wrapper.appendChild(propBlock);
+    status.appendChild(wrapper);
+  });
 }
 
 //Функція відображення та оновлення гравців на полі
@@ -52,41 +83,36 @@ function updatePlayer() {
     const cell = document.querySelector(`.cell[data-index='${p.position}']`);
     if (cell) {
       if (!p.tokenElement) {
-
         const token = createToken(p, idx);
 
         p.tokenElement = token;
       }
-      cell.appendChild(p.tokenElement);
+
+      const overlay = cell.querySelector(".token-overlay");
+      if (overlay && !overlay.contains(p.tokenElement)) {
+        overlay.appendChild(p.tokenElement);
+      }
+
     }
   });
 }
 
 // Функція для створення токена гравця
-/**
- * Creates a player token DOM element with specific styles and emoji.
- *
- * @param {Object} player - The player object containing player data.
- * @param {string} player.emoji - The emoji representing the player.
- * @param {number} idx - The index of the player (used for color selection and data attributes).
- * @returns {HTMLDivElement} The created player token element.
- */
 const createToken = (player, idx) => {
   const token = document.createElement("div");
   token.className = "player-token";
-  token.textContent = '';
-  token.dataset.playerIndex = idx;        
-  const colors = ["green", "yellow", "red", "blue"];        
+  token.textContent = "";
+  token.dataset.playerIndex = idx;
+  const colors = ["green", "yellow", "red", "blue"];
   token.style.width = "25px";
   token.style.height = "25px";
   token.style.borderRadius = "50%";
-  token.style.borderBottom = `2px solid ${colors[idx % colors.length]}`;
+  token.style.border = `3px solid ${colors[idx % colors.length]}`;
   token.innerHTML = player.emoji; // Додаємо емодзі гравця
-  // token.style.backgroundColor = colors[idx % colors.length];        
   token.style.display = "inline-block";
-  
+
   return token;
-}
+};
 
 // Функція для обробки ходу гравця
 function handleTurn(roll) {
@@ -113,7 +139,7 @@ function handleTurn(roll) {
           `${plot.name} доступне за $${plot.cost}. Купити?`,
           [
             {
-              label: '✅ Купити',
+              label: "✅ Купити",
               onClick: () => {
                 if (player.balance >= plot.cost) {
                   player.updateBalance(-plot.cost);
@@ -125,32 +151,35 @@ function handleTurn(roll) {
                   nextTurn();
                 } else {
                   showModalWithChoices("❌ Недостатньо коштів!", [
-                    { label: 'OK', onClick: () => nextTurn() }
+                    { label: "OK", onClick: () => nextTurn() },
                   ]);
                 }
-              }
+              },
             },
             {
-              label: '❌ Відмовитись',
-                onClick: () => { nextTurn(); updatePlayer(); updateUI();}
-            }
+              label: "❌ Відмовитись",
+              onClick: () => {
+                nextTurn();
+                updatePlayer();
+                updateUI();
+              },
+            },
           ]
         );
       } else {
-          // інша логіка
-            updatePlayer();
-            updateUI();
-            nextTurn();
+        // інша логіка
+        updatePlayer();
+        updateUI();
+        nextTurn();
       }
-      
 
       console.log("Current player: ", player);
       console.log("MAP: ", map.getAllPlots());
       // Оновлюємо інтерфейс
 
-    //   updatePlayer();
-    //   updateUI();
-    //   nextTurn();
+      //   updatePlayer();
+      //   updateUI();
+      //   nextTurn();
     }
   );
 }
@@ -168,6 +197,7 @@ const getPlot = (position) => {
   return plots.find((p) => p.position === position);
 };
 
+// Функція для підсвічування полів у власності гравців
 function highlightOwnedProperties() {
   // Скидаємо попередні позначення
   document.querySelectorAll(".cell").forEach((cell) => {
@@ -188,23 +218,23 @@ function highlightOwnedProperties() {
   });
 }
 
+
+// playerMove.js — модуль для переміщення гравця на стартову позицію
 export const player = {
+  // Функція для переміщення гравця на стартову позицію
   startPosition: () => {
-    // const players = document.createElement("div");
+    // Ініціалізуємо гравців на стартовій позиції
     const startCell = document.querySelector(`.cell[data-index='${0}']`);
     players.forEach((p, idx) => {
-
       const token = createToken(p, idx);
-      
+
       p.tokenElement = token;
-      startCell.appendChild(token);
+      startCell.querySelector('.token-overlay').appendChild(token);
       p.position = 0;
     });
     const player = getCurrentPlayer();
     player.position = 0; // Початкова позиція
-    document.getElementById(
-      "status"
-    ).textContent = `${player.name} починає гру!`;
+    document.getElementById("status" ).textContent = `${player.name} починає гру!`;
     updateUI();
   },
 };

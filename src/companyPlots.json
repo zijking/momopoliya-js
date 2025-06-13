@@ -1,6 +1,6 @@
 [
     {
-        "name":"🚆<br>Південна залізниця", 
+        "name":"🚆Південна залізниця", 
         "cost":300,
         "color":"#DFE1E0",
         "colorGroup":9,
@@ -17,7 +17,7 @@
         "type": "railway"
     },
     {
-        "name":"🚆<br>Західна залізниця", 
+        "name":"🚆Західна залізниця", 
         "cost":300,
         "color":"#DFE1E0",
         "colorGroup":9,
@@ -34,7 +34,7 @@
         "type": "railway"
     },
     {
-        "name":"🚆<br>Північна залізниця", 
+        "name":"🚆Північна залізниця", 
         "cost":300,
         "color":"#DFE1E0",
         "colorGroup":9,
@@ -51,7 +51,7 @@
         "type": "railway"
     },
     {
-        "name":"🚆<br>Східна залізниця", 
+        "name":"🚆Східна залізниця", 
         "cost":300,
         "color":"#DFE1E0",
         "colorGroup":9,
@@ -68,7 +68,7 @@
         "type": "railway"
     },
     {
-        "name":"🏢<br>Поштова компанія", 
+        "name":"🏢Поштова компанія", 
         "cost":250,
         "color":"#DFE1E0",
         "colorGroup":10,
@@ -85,7 +85,7 @@
         "type": "company"
     },
     {
-        "name":"🏢<br>Інтернет компанія", 
+        "name":"🏢Інтернет компанія", 
         "cost":250,
         "color":"#DFE1E0",
         "colorGroup":10,

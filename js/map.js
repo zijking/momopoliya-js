@@ -40,7 +40,7 @@ const buildMap = () => {
 
   // 🔹 Функція для розміщення клітинки на полі
   const placeCell = (plot) => {
-    console.log("Plot: ", plot);
+    // console.log("Plot: ", plot);
     const [x, y] = getCoordinates(plot.position);
     const cell = document.createElement("div");
     cell.className = "cell";
@@ -63,23 +63,28 @@ const buildMap = () => {
     else side = "right"; // права колона
     cell.classList.add(`side-${side}`); // додаємо клас виду side-top / side-left / …
 
-    // 🔹 Додаємо інформацію про клітинку
-    const info = document.createElement("div");
-    info.style.zIndex = "1"; // Щоб був поверх кольору
-    info.innerHTML = `<strong>${plot.name || "#" + plot.position}</strong>`;
-    if (plot.cost) info.innerHTML += `<br>💰 ${plot.cost}`;
-    if (plot.rent) info.innerHTML += `<br>🏠 ${plot.rent}`;
+    // Додаємо інформацію про клітинку
+    const info = document.createElement('div');
+    info.className = 'info-text';             // ⬅️ даємо новий клас
+    info.innerHTML = `<strong>${plot.name || '#' + plot.position}</strong>`;
+    if (plot.cost)  info.innerHTML += `<br>💰 ${plot.cost}`;
+    if (plot.rent)  info.innerHTML += `<br>🏠 ${plot.rent}`;
     cell.appendChild(info);
-
+    
+    /* контейнер для фішок */
+    const tokenContainer = document.createElement('div');
+    tokenContainer.className = 'player-tokens-container';
+    cell.appendChild(tokenContainer);
+    // console.log("Plot.RentLandPlot ", plot.rentLandPlot);
     /* ==== ДОДАТКОВИЙ БЛОК З РЕНТОЮ ===================================== */
-    if (plot.rentLandPlot !== undefined) {
+    if (plot.rent !== undefined) {
       const details = document.createElement("div");
       details.className = "details";
 
       if (plot.type === "landPlot") {
         const lines = [];
         // без будинків
-        lines.push(`Без буд.: $${plot.rentLandPlot}`);
+        lines.push(`Без буд.: $${plot.rent}`);
 
         // з будинками
         if (Array.isArray(plot.rentWithHouse)) {
@@ -107,7 +112,7 @@ const buildMap = () => {
         // з 1 по 2 компанії
         if (Array.isArray(plot.rentWithHouse)) {
           plot.rentWithHouse.forEach((val, idx) => {
-            lines.push(`${idx + 1} Ком.: $x${val}<br>` + (idx === 0 ? "(кидка кубиків)" : ""));
+            lines.push(`${idx + 1} Ком.: $x${val}<br>` + "(кидка кубиків)");
           });
         }
         details.innerHTML = lines.join("<br>");
@@ -121,7 +126,13 @@ const buildMap = () => {
     // Додаємо дані до клітинки
     cell.dataset.index = plot.position;
     // Додаємо дані про тип клітинки
-    cell.dataset.mainCost = plot.cost;
+      cell.dataset.mainCost = plot.cost;
+      
+     
+    const tokenOverlay = document.createElement('div');
+    tokenOverlay.className = 'token-overlay'; // додатковий блок для фішок
+    cell.appendChild(tokenOverlay);
+
     board.appendChild(cell);
     // allPlots.push(plot); // 🔹 Додаємо клітинку до загального масиву
     cells.push(cell);

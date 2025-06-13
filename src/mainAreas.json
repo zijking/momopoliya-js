@@ -49,21 +49,25 @@
     {
         "name": "💲<br>Бюджет",
         "position": 17,
+        "cost": 0,
         "type": "budget"
     },
     {
         "name": "💲<br>Бюджет",
         "position": 36,
+        "cost": 0,
         "type": "budget"
     },
     {
         "name": "💸<br>Податок на дохід",
         "position": 38,
+        "cost": -100,
         "type": "tax"
     },
     {
         "name": "💸<br>Податок річний",
         "position": 4,
+        "cost": -200,
         "type": "tax"
     }
 ]
