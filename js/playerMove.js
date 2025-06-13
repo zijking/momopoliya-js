@@ -26,8 +26,7 @@ function getCurrentPlayer() {
 // Функція для переходу до наступного ходу
 function nextTurn() {
   currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-  updatePlayer();
-}
+ }
 
 // Функція для оновлення інформації про гравців
 function updateUI() {
@@ -53,21 +52,40 @@ function updatePlayer() {
     const cell = document.querySelector(`.cell[data-index='${p.position}']`);
     if (cell) {
       if (!p.tokenElement) {
-        const token = document.createElement("div");
-        token.className = "player-token";
-        token.textContent = "";
-        token.dataset.playerIndex = idx;
-        const colors = ["green", "yellow", "red", "blue"];
-        token.style.width = "15px";
-        token.style.height = "15px";
-        token.style.borderRadius = "50%";
-        token.style.backgroundColor = colors[idx % colors.length];
-        token.style.display = "inline-block";
+
+        const token = createToken(p, idx);
+
         p.tokenElement = token;
       }
       cell.appendChild(p.tokenElement);
     }
   });
+}
+
+// Функція для створення токена гравця
+/**
+ * Creates a player token DOM element with specific styles and emoji.
+ *
+ * @param {Object} player - The player object containing player data.
+ * @param {string} player.emoji - The emoji representing the player.
+ * @param {number} idx - The index of the player (used for color selection and data attributes).
+ * @returns {HTMLDivElement} The created player token element.
+ */
+const createToken = (player, idx) => {
+  const token = document.createElement("div");
+  token.className = "player-token";
+  token.textContent = '';
+  token.dataset.playerIndex = idx;        
+  const colors = ["green", "yellow", "red", "blue"];        
+  token.style.width = "25px";
+  token.style.height = "25px";
+  token.style.borderRadius = "50%";
+  token.style.borderBottom = `2px solid ${colors[idx % colors.length]}`;
+  token.innerHTML = player.emoji; // Додаємо емодзі гравця
+  // token.style.backgroundColor = colors[idx % colors.length];        
+  token.style.display = "inline-block";
+  
+  return token;
 }
 
 // Функція для обробки ходу гравця
@@ -175,21 +193,9 @@ export const player = {
     // const players = document.createElement("div");
     const startCell = document.querySelector(`.cell[data-index='${0}']`);
     players.forEach((p, idx) => {
-      const token = document.createElement("div");
-      token.className = "player-token";
-      token.textContent = '';
-        token.dataset.playerIndex = idx;
-        
-        const colors = ["green", "yellow", "red", "blue"];
-        
-      token.style.width = "25px";
-      token.style.height = "25px";
-        token.style.borderRadius = "50%";
-        token.style.borderBottom = `2px solid ${colors[idx % colors.length]}`;
-        token.innerHTML = p.emoji; // Додаємо емодзі гравця
-        // token.style.backgroundColor = colors[idx % colors.length];
-        
-      token.style.display = "inline-block";
+
+      const token = createToken(p, idx);
+      
       p.tokenElement = token;
       startCell.appendChild(token);
       p.position = 0;

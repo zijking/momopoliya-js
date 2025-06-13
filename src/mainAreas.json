@@ -6,7 +6,7 @@
         "type": "start"
     },
     {
-        "name": "Парковка",
+        "name": "🅿️<br>Парковка",
         "position": 20,
         "cost": 0,
         "type": "parking"
@@ -42,17 +42,17 @@
         "type": "chance"
     },
     {
-        "name": "Бюджет",
+        "name": "💲<br>Бюджет",
         "position": 2,
         "type": "budget"
     },
     {
-        "name": "Бюджет",
+        "name": "💲<br>Бюджет",
         "position": 17,
         "type": "budget"
     },
     {
-        "name": "Бюджет",
+        "name": "💲<br>Бюджет",
         "position": 36,
         "type": "budget"
     },

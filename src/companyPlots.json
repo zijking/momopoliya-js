@@ -13,7 +13,8 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":5
+        "position":5,
+        "type": "railway"
     },
     {
         "name":"🚆<br>Західна залізниця", 
@@ -29,7 +30,8 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":15
+        "position":15,
+        "type": "railway"
     },
     {
         "name":"🚆<br>Північна залізниця", 
@@ -45,7 +47,8 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":25
+        "position":25,
+        "type": "railway"
     },
     {
         "name":"🚆<br>Східна залізниця", 
@@ -61,7 +64,8 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":35
+        "position":35,
+        "type": "railway"
     },
     {
         "name":"🏢<br>Поштова компанія", 
@@ -77,9 +81,10 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":27
+        "position":27,
+        "type": "company"
     },
-     {
+    {
         "name":"🏢<br>Інтернет компанія", 
         "cost":250,
         "color":"#DFE1E0",
@@ -93,7 +98,7 @@
         "mortgage":false,
         "redemptionCost": "+10%",
         "costOfBuildingOneHouse":0,
-        "position":13
+        "position":13,
+        "type": "company"
     }
-    
 ]
