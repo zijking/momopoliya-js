@@ -64,31 +64,31 @@ const buildMap = () => {
     cell.classList.add(`side-${side}`); // додаємо клас виду side-top / side-left / …
 
     // Додаємо інформацію про клітинку
-    const info = document.createElement('div');
-    info.className = 'info-text';             // ⬅️ даємо новий клас
-    info.innerHTML = `<strong>${plot.name || '#' + plot.position}</strong>`;
-    if (plot.cost)  info.innerHTML += `<br>💰 ${plot.cost}`;
-    if (plot.rent)  info.innerHTML += `<br>🏠 ${plot.rent}`;
+    const info = document.createElement("div");
+    info.className = "info-text"; // ⬅️ даємо новий клас
+    info.innerHTML = `<strong>${plot.name || "#" + plot.position}</strong>`;
+    if (plot.cost) info.innerHTML += `<br>💰 ${plot.cost}`;
+    if (plot.rent) info.innerHTML += `<br>🏠 ${plot.rent}`;
     cell.appendChild(info);
-    
+
     /* контейнер для фішок */
-    const tokenContainer = document.createElement('div');
-    tokenContainer.className = 'player-tokens-container';
+    const tokenContainer = document.createElement("div");
+    tokenContainer.className = "player-tokens-container";
     cell.appendChild(tokenContainer);
     // console.log("Plot.RentLandPlot ", plot.rentLandPlot);
-    
+
     // Додаємо дані до клітинки
     cell.dataset.index = plot.position;
     // Додаємо дані про тип клітинки
     cell.dataset.mainCost = plot.cost;
-      
+
     const details = getDetails(plot);
     if (details) {
       cell.appendChild(details); // Додаємо деталі клітинки
     }
-    
-    const tokenOverlay = document.createElement('div');
-    tokenOverlay.className = 'token-overlay'; // додатковий блок для фішок
+
+    const tokenOverlay = document.createElement("div");
+    tokenOverlay.className = "token-overlay"; // додатковий блок для фішок
     cell.appendChild(tokenOverlay);
 
     board.appendChild(cell);
@@ -108,57 +108,53 @@ const getAllPlots = () => {
   return allPlots;
 };
 
+// 🔹 Функція для отримання деталей клітинки
 const getDetails = (plot) => {
-  console.log("Plot: ", plot);
-  /* ==== ДОДАТКОВИЙ БЛОК З РЕНТОЮ ===================================== */
-  
-    
-    const details = document.createElement("div");
-    details.className = "details";
+  // console.log("Plot: ", plot);
 
-    if (plot.type === "landPlot") {
-      const lines = [];
-      // без будинків
-      lines.push(`Без буд.: $${plot.rent}`);
-      // з будинками
-      if (Array.isArray(plot.rentWithHouse)) {
-        plot.rentWithHouse.forEach((val, idx) => {
-          lines.push(`${idx + 1} буд.: $${val}`);
-        });
-      }
-      // з готелем
-      if (plot.rentWithHotel) {
-        lines.push(`Готель: $${plot.rentWithHotel}`);
-      }
-      details.innerHTML = lines.join("<br>");
-    } else if (plot.type === "railway") {
-      const lines = [];       
-      // з 1 по 4 залізниці
-      if (Array.isArray(plot.rentWithHouse)) {
-        plot.rentWithHouse.forEach((val, idx) => {
-          lines.push(`${idx + 1} зал.: $${val}`);
-        });
-      }
-      details.innerHTML = lines.join("<br>");
-    } else if (plot.type === "company") {
-      const lines = [];       
-      // з 1 по 2 компанії
-      if (Array.isArray(plot.rentWithHouse)) {
-        plot.rentWithHouse.forEach((val, idx) => {
-          lines.push(`${idx + 1} Ком.: $x${val}<br>` + "(кидка кубиків)");
-        });
-      }
-      details.innerHTML = lines.join("<br>");
-    } else {
-      return null; // Якщо не landPlot, не показуємо деталі
-      // details.innerHTML = "";
+  const details = document.createElement("div");
+  details.className = "details";
+
+  if (plot.type === "landPlot") {
+    const lines = [];
+    // без будинків
+    lines.push(`Без буд.: $${plot.rent}`);
+    // з будинками
+    if (Array.isArray(plot.rentWithHouse)) {
+      plot.rentWithHouse.forEach((val, idx) => {
+        lines.push(`${idx + 1} буд.: $${val}`);
+      });
     }
-
-    console.log("Details: ", details);
-    return(details);
+    // з готелем
+    if (plot.rentWithHotel) {
+      lines.push(`Готель: $${plot.rentWithHotel}`);
+    }
+    details.innerHTML = lines.join("<br>");
+  } else if (plot.type === "railway") {
+    const lines = [];
+    // з 1 по 4 залізниці
+    if (Array.isArray(plot.rentWithHouse)) {
+      plot.rentWithHouse.forEach((val, idx) => {
+        lines.push(`${idx + 1} зал.: $${val}`);
+      });
+    }
+    details.innerHTML = lines.join("<br>");
+  } else if (plot.type === "company") {
+    const lines = [];
+    // з 1 по 2 компанії
+    if (Array.isArray(plot.rentWithHouse)) {
+      plot.rentWithHouse.forEach((val, idx) => {
+        lines.push(`${idx + 1} Ком.: $x${val}<br>` + "(кидка кубиків)");
+      });
+    }
+    details.innerHTML = lines.join("<br>");
+  } else {
+    return null; // суд, парковка, в'язниця та інші не мають деталей    
   }
-  // ==== КІНЕЦЬ ДОДАТКОВОГО БЛОКУ З РЕНТОЮ ================================ */
 
+  // console.log("Details: ", details);
+  return details;
+};
 
 export default {
   buildMap,
