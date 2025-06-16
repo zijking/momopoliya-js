@@ -24,7 +24,7 @@ class Player {
     pay(amount, receiver = null) {
         if (this.balance >= amount) {
             this.balance -= amount;
-            if (receiver) receiver.updateBalance(amount);
+            if (receiver) receiver.updateBalance(+amount);
             return true;
         } else {
             alert(`${this.name} не має достатньо коштів!`);

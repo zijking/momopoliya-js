@@ -117,7 +117,10 @@ const createToken = (player, idx) => {
 };
 
 // Функція для обробки ходу гравця
-function handleTurn(roll) {
+function handleTurn(
+  roll = null // Параметр для кидка кубика, якщо не передано, генеруємо випадковий кидок
+)  {
+  console.log("roll: ", roll);
   if (typeof roll !== "number") {
     roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
     if(roll === 1) {
@@ -139,51 +142,31 @@ function handleTurn(roll) {
     () => {
       // Перевірка чи можна купити
       if (plot.owner === "bank") {
-        showModalWithChoices(
-          `${plot.name} доступне за $${plot.cost}. Купити?`,
-          [
-            {
-              label: "✅ Купити",
-              onClick: () => {
-                if (player.balance >= plot.cost) {                 
-                  actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
-                  highlightOwnedProperties();
-                  updatePlayer();
-                  updateUI();
-                  nextTurn();
-                } else {
-                  showModalWithChoices("❌ Недостатньо коштів!", [
-                    { label: "OK", onClick: () => nextTurn() },
-                  ]);
-                }
-              },
-            },
-            {
-              label: "❌ Відмовитись",
-              onClick: () => {
-                nextTurn();
-                updatePlayer();
-                updateUI();
-              },
-            },
-          ]
-        );
-      } else {
+        showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
+      } else if (plot.owner !== player.name) { 
+          console.log("Pey rent: ", plot.rent);
+        // Якщо поле зайняте іншим гравцем, сплачуємо оренду
+        if (plot.owner !== 'bank' && plot.owner !== player.name) {
+          const success = actionPlayer.payRentToOwner(player, plot, players);
+          if (success) {
+            alert(`${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`);
+            updateUI(); // Оновлюємо інтерфейс
+          } else {
+            alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+          }
+        }
+      }      
+      else {
         // інша логіка
+      }   
+    }
+  );
+   // console.log("Current player: ", player);
+      console.log("MAP: ", map.getAllPlots());
+   // Оновлюємо інтерфейс
         updatePlayer();
         updateUI();
         nextTurn();
-      }
-
-      // console.log("Current player: ", player);
-      console.log("MAP: ", map.getAllPlots());
-      // Оновлюємо інтерфейс
-
-      //   updatePlayer();
-      //   updateUI();
-      //   nextTurn();
-    }
-  );
 }
 
 // Функція для отримання назви поля за позицією
@@ -219,6 +202,37 @@ function highlightOwnedProperties() {
     });
   });
 }
+
+// Функція для показу модального вікна з можливістю купівлі ділянки
+const showModalForByPlot = (player, plot) => { 
+  showModalWithChoices(
+    `${plot.name} доступне за $${plot.cost}. Купити?`,
+    [
+      {
+        label: "✅ Купити",
+        onClick: () => {
+          if (player.balance >= plot.cost) {                 
+            actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
+            highlightOwnedProperties();  
+            updateUI(); // Оновлюємо інтерфейс
+          } else {
+            showModalWithChoices("❌ Недостатньо коштів!", [
+              { label: "OK", onClick: () => nextTurn() },
+            ]);
+            updateUI();
+          }
+        },
+      },
+      {
+        label: "❌ Відмовитись",
+        onClick: () => {      
+        },
+      },
+    ]
+  );
+
+}
+
 
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
