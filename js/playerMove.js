@@ -1,6 +1,8 @@
 import Player from "./pleyer.js";
 import map from "./map.js";
 import { showModal, showModalWithChoices } from "./modal.js";
+import actionPlayer from "./playerActions.js";
+import playerActions from "./playerActions.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -118,18 +120,20 @@ const createToken = (player, idx) => {
 function handleTurn(roll) {
   if (typeof roll !== "number") {
     roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
+    if(roll === 1) {
+      roll = 2; // Якщо випало 1, то вважаємо це 2
+    }
   }
-  const player = getCurrentPlayer(); // Отримуємо поточного гравця
+  const player = getCurrentPlayer(); // Отримуємо поточного гравця 
+  playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
+
   player.move(roll); // Переміщуємо гравця на нову позицію
 
-  // Отримуємо нову позицію на полі
   const plot = getPlot(player.position); // Отримуємо об'єкт поля за позицією
-  console.log("currentPlot: ", plot);
+  // console.log("currentPlot: ", plot);
 
   const plotName = getPlotName(player.position); // Отримуємо назву поля
 
-  // document.getElementById('status').textContent =
-  //     `${player.name} кинув ${roll} і потрапив на ${plotName}`;
   showModal(
     `${player.emoji} ${player.name} кинув 🎲 ${roll}<br>Переходить на: <strong>${plotName}</strong>`,
     () => {
@@ -141,10 +145,8 @@ function handleTurn(roll) {
             {
               label: "✅ Купити",
               onClick: () => {
-                if (player.balance >= plot.cost) {
-                  player.updateBalance(-plot.cost);
-                  player.addProperty(plot);
-                  plot.owner = player.name;
+                if (player.balance >= plot.cost) {                 
+                  actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
                   highlightOwnedProperties();
                   updatePlayer();
                   updateUI();
@@ -173,7 +175,7 @@ function handleTurn(roll) {
         nextTurn();
       }
 
-      console.log("Current player: ", player);
+      // console.log("Current player: ", player);
       console.log("MAP: ", map.getAllPlots());
       // Оновлюємо інтерфейс
 

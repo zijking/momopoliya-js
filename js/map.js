@@ -5,7 +5,9 @@ const allPlots = []; // 🔹 Масив для всіх полів
 
 // 🔹 Функція для побудови карти
 const buildMap = () => {
+  
   console.log("Start buildMap");
+
   const board = document.getElementById("board");
 
   const cellSize = 80;
@@ -96,6 +98,7 @@ const buildMap = () => {
     cells.push(cell);
   };
 
+  // 🔹 Рендеримо всі клітинки на полі
   const renderBoard = () => {
     landPlots.forEach(placeCell);
     companyPlots.forEach(placeCell);
