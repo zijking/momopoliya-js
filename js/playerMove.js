@@ -3,6 +3,7 @@ import map from "./map.js";
 import { showModal, showModalWithChoices } from "./modal.js";
 import actionPlayer from "./playerActions.js";
 import playerActions from "./playerActions.js";
+import { logAction } from "./utils.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -130,6 +131,10 @@ function handleTurn(
   const player = getCurrentPlayer(); // Отримуємо поточного гравця 
   playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
 
+  const newPosition = (player.position + roll) % 40; // Обчислюємо нову позицію з урахуванням кількості полів на полі
+  logAction(`${player.emoji}  кинув кубики 🎲: ${roll} (з ${getPlot(player.position).name} на ${getPlot(newPosition).name})`); // лог дії 
+  
+
   player.move(roll); // Переміщуємо гравця на нову позицію
 
   const plot = getPlot(player.position); // Отримуємо об'єкт поля за позицією
@@ -138,7 +143,7 @@ function handleTurn(
   const plotName = getPlotName(player.position); // Отримуємо назву поля
 
   showModal(
-    `${player.emoji} ${player.name} кинув 🎲 ${roll}<br>Переходить на: <strong>${plotName}</strong>`,
+    `${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`,
     () => {
       // Перевірка чи можна купити
       if (plot.owner === "bank") {
@@ -149,6 +154,7 @@ function handleTurn(
           const success = actionPlayer.payRentToOwner(player, plot, players);
           if (success) {
             alert(`${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`);
+            logAction(`${player.emoji} ${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`); // лог дії
             updateUI(); // Оновлюємо інтерфейс гравців
           } else {
             alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
@@ -161,7 +167,7 @@ function handleTurn(
     }
   );
    // console.log("Current player: ", player);
-      console.log("MAP: ", map.getAllPlots());
+      // console.log("MAP: ", map.getAllPlots());
    // Оновлюємо інтерфейс
         updatePlayer();
         updateUI();
@@ -213,6 +219,7 @@ const showModalForByPlot = (player, plot) => {
           if (player.balance >= plot.cost) {                 
             actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
             highlightOwnedProperties();  
+            logAction(`${player.emoji} ${player.name} купив ${plot.name} за $${plot.cost}`);
             updateUI(); // Оновлюємо інтерфейс
           } else {
             showModalWithChoices("❌ Недостатньо коштів!", [
@@ -223,16 +230,17 @@ const showModalForByPlot = (player, plot) => {
         },
       },
       {
-        label: "❌ Відмовитись",
-        onClick: () => {      
+        label: "❌ Відмовитись",        
+        onClick: () => {
+          // console.log("Player refused to buy: ", plot.name);
+          logAction(`${player.emoji} ${player.name} відмовився купувати ${plot.name}`);  
+          updateUI();
         },
       },
     ]
   );
 
 }
-
-
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
 export const player = {
