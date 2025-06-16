@@ -120,7 +120,7 @@ const createToken = (player, idx) => {
 function handleTurn(
   roll = null // Параметр для кидка кубика, якщо не передано, генеруємо випадковий кидок
 )  {
-  console.log("roll: ", roll);
+  // console.log("roll: ", roll);
   if (typeof roll !== "number") {
     roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
     if(roll === 1) {
@@ -143,14 +143,13 @@ function handleTurn(
       // Перевірка чи можна купити
       if (plot.owner === "bank") {
         showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
-      } else if (plot.owner !== player.name) { 
-          console.log("Pey rent: ", plot.rent);
-        // Якщо поле зайняте іншим гравцем, сплачуємо оренду
+      } else if (plot.owner !== player.name) {  // Якщо поле зайняте іншим гравцем, сплачуємо оренду
+          // console.log("Pey rent: ", plot.rent);       
         if (plot.owner !== 'bank' && plot.owner !== player.name) {
           const success = actionPlayer.payRentToOwner(player, plot, players);
           if (success) {
             alert(`${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`);
-            updateUI(); // Оновлюємо інтерфейс
+            updateUI(); // Оновлюємо інтерфейс гравців
           } else {
             alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
           }
