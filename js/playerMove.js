@@ -119,7 +119,7 @@ const createToken = (player, idx) => {
 };
 
 // Функція для обробки ходу гравця
-function handleTurn()  {
+function handleTurn(roll = 0)  {
 
   roll = getroll(); // Отримуємо кидок кубика 
 
@@ -261,7 +261,8 @@ const startPosition = () => {
     });
     
     player.position = 0; // Початкова позиція
-    // document.getElementById("status" ).textContent = `${player.name} починає гру!`;
+  // document.getElementById("status" ).textContent = `${player.name} починає гру!`;
+    console.log("MAP: ", map.getAllPlots());
     updateUI();
 }
 
@@ -278,7 +279,7 @@ const hundelByPlotOrPaurent = (plot, player, roll) => {
       if (success) {                       
         updateUI(); // Оновлюємо інтерфейс гравців
       } else {
-        alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+        alert(`${player.name} не зміг сплатити оренду — недостатньо коштів! [000]`);
       }
     }
   }      
@@ -295,10 +296,20 @@ const chekTax = (plot, player) => {
   
     if (success) {
       logAction(`${player.name} сплатив податок ${plot.name} у розмірі $${taxAmount}`);
+      addToParking(taxAmount); // Додаємо кошти на парковку
     } else {
       alert(`${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`);
       logAction(`${player.name} не зміг сплатити податок ${plot.name}`);
     }
+  }
+}
+
+// Функція для додавання коштів на парковку
+const addToParking = (amount) => {
+  const plots = map.getAllPlots();
+  const parking = plots.find(p => p.type === 'parking');
+  if (parking) {
+    parking.cost = (parking.cost || 0) + amount;
   }
 }
 

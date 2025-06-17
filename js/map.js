@@ -107,6 +107,7 @@ const buildMap = () => {
   };
 };
 
+// 🔹 Функція для отримання всіх клітинок
 const getAllPlots = () => {
   return allPlots;
 };
@@ -158,6 +159,8 @@ const getDetails = (plot) => {
   // console.log("Details: ", details);
   return details;
 };
+
+
 
 export default {
   buildMap,

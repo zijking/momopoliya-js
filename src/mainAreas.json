@@ -3,71 +3,83 @@
         "name": "Старт",
         "position": 0,
         "cost": 0,
-        "type": "start"
+        "type": "start",
+        "owner": "city"
     },
     {
         "name": "🅿️Парковка",
         "position": 20,
         "cost": 0,
-        "type": "parking"
+        "type": "parking",
+        "owner": "city"
     },
     {
         "name": "🚔Суд",
         "position": 30,
         "cost": 0,
-        "type": "court"
+        "type": "court",
+        "owner": "city"
     },
     {
         "name": "🚔Тюрма",
         "position": 10,
         "cost": 0,
-        "type": "jail"
+        "type": "jail",
+        "owner": "city"
     },
     {
         "name": "🎁Шанс",
         "position": 7,
         "cost": 0,
-        "type": "chance"
+        "type": "chance",
+        "owner": "city"
     },
     {
         "name": "🎁Шанс",
         "position": 22,
         "cost": 0,
-        "type": "chance"
+        "type": "chance",
+        "owner": "city"
     },
     {
         "name": "🎁Шанс",
         "position": 33,
         "cost": 0,
-        "type": "chance"
+        "type": "chance",
+        "owner": "city"
     },
     {
         "name": "💲Бюджет",
         "position": 2,
-        "type": "budget"
+        "type": "budget",
+        "owner": "city"
     },
     {
         "name": "💲Бюджет",
         "position": 17,
         "cost": 0,
-        "type": "budget"
+        "type": "budget",
+        "owner": "city"
     },
     {
         "name": "💲Бюджет",
         "position": 36,
         "cost": 0,
-        "type": "budget"
+        "type": "budget",
+        "owner": "city"
     },
     {
         "name": "💸Податок на дохід",
         "position": 38,
         "cost": -100,
-        "type": "tax"
+        "type": "tax",
+        "owner": "city"
     },
     {
         "name": "💸Податок річний",
         "position": 4,
         "cost": -200,
-        "type": "tax"
+        "type": "tax",
+        "owner": "city"
     }
 ]
