@@ -18,7 +18,7 @@ const randomPlayers = [
   { name: "Космічний Пес", emoji: "🐕‍🦺" },
   { name: "Марсіянин", emoji: "🛸" },
   { name: "Галактичний Кіт", emoji: "🐱" },
-  { name: "Супутник", emoji: "🛰️" }
+  { name: "Супутник", emoji: "🛰️" },
 ];
 
 // Ініціалізація гравців
@@ -96,7 +96,6 @@ function updatePlayer() {
       if (overlay && !overlay.contains(p.tokenElement)) {
         overlay.appendChild(p.tokenElement);
       }
-
     }
   });
 }
@@ -119,29 +118,28 @@ const createToken = (player, idx) => {
 };
 
 // Функція для обробки ходу гравця
-function handleTurn(roll = 0)  {
+function handleTurn(roll = 0) {
+  roll = getroll(); // Отримуємо кидок кубика
 
-  roll = getroll(); // Отримуємо кидок кубика 
+  // roll = 4; // Для тестування, встановлюємо фіксований кидок кубика
 
-  roll = 4; // Для тестування, встановлюємо фіксований кидок кубика
- 
-  const player = getCurrentPlayer(); // Отримуємо поточного гравця 
+  const player = getCurrentPlayer(); // Отримуємо поточного гравця
   const newPosition = (player.position + roll) % 40; // Обчислюємо нову позицію з урахуванням кількості полів на полі
 
   player.lastRoll = roll; // Зберігаємо останній кидок кубика
 
+  logAction(
+    `${player.emoji}  кинув кубики 🎲: <b>${roll}</b> (з ${
+      getPlot(player.position).name
+    } на ${getPlot(newPosition).name})`
+  ); // лог дії кидка кубика
+
   playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
-  
-  logAction(`${player.emoji}  кинув кубики 🎲: <b>${roll}</b> (з ${getPlot(player.position).name} на ${getPlot(newPosition).name})`); // лог дії   
 
   player.move(roll); // Переміщуємо гравця на нову позицію
 
   const plot = getPlot(player.position); // Отримуємо об'єкт поля за позицією
   const plotName = getPlotName(player.position); // Отримуємо назву поля
- 
-  chekTax(plot, player); // Перевіряємо сплату податку
-  
-
 
   //----БЛОК ДЛЯ ТЕСТУ--------------------------
   // if(indexRoll === 0) {
@@ -152,30 +150,31 @@ function handleTurn(roll = 0)  {
   //   // console.log("currentPlot: ", plot);
   //   indexRoll++
   // }
-  
+
   //-----------------------------
+  showModal(
+    `${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`,
+    () => hundelByPlotOrPaurent(plot, player, roll)
+  );
+  console.log("Current player: ", player);
+  console.log("MAP: ", map.getAllPlots());
 
-  
-
-  
-  showModal(`${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`, () => hundelByPlotOrPaurent(plot, player, roll) );
-      console.log("Current player: ", player);
-      console.log("MAP: ", map.getAllPlots());
-   // Оновлюємо інтерфейс
-        updatePlayer();
-        updateUI();
-        nextTurn();
+  // Оновлюємо інтерфейс
+  updatePlayer();
+  updateUI();
+  nextTurn();
 }
 
+// Функція для отримання випадкового кидка кубика
 const getroll = () => {
   // console.log("roll: ", roll);
-  let roll = 0;   
-    roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
-    if(roll === 1) {
-      roll = 2; // Якщо випало 1, то вважаємо це 2
-    } 
+  let roll = 0;
+  roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
+  if (roll === 1) {
+    roll = 2; // Якщо випало 1, то вважаємо це 2
+  }
   return roll;
-}
+};
 
 // Функція для отримання назви поля за позицією
 const getPlotName = (position) => {
@@ -212,109 +211,168 @@ function highlightOwnedProperties() {
 }
 
 // Функція для показу модального вікна з можливістю купівлі ділянки
-const showModalForByPlot = (player, plot) => { 
+const showModalForByPlot = (player, plot) => {
   console.log("showModalForByPlot: ");
-  showModalWithChoices(
-    `${plot.name} доступне за $${plot.cost}. Купити?`,
-    [
-      {
-        label: "✅ Купити",
-        onClick: () => {
-          if (player.balance >= plot.cost) {                 
-            actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
-            highlightOwnedProperties();  
-            logAction(`${player.emoji} ${player.name} купив ${plot.name} за $${plot.cost}`);
-            updateUI(); // Оновлюємо інтерфейс
-          } else {
-            showModalWithChoices("❌ Недостатньо коштів!", [
-              { label: "OK", onClick: () => nextTurn() },
-            ]);
-            updateUI();
-          }
-        },
-      },
-      {
-        label: "❌ Відмовитись",        
-        onClick: () => {
-          // console.log("Player refused to buy: ", plot.name);
-          logAction(`${player.emoji} ${player.name} відмовився купувати ${plot.name}`);  
+  showModalWithChoices(`${plot.name} доступне за $${plot.cost}. Купити?`, [
+    {
+      label: "✅ Купити",
+      onClick: () => {
+        if (player.balance >= plot.cost) {
+          actionPlayer.buyPlot(player, plot); // Використовуємо функцію купівлі ділянки
+          highlightOwnedProperties();
+          logAction(
+            `${player.emoji} ${player.name} купив ${plot.name} за $${plot.cost}`
+          );
+          updateUI(); // Оновлюємо інтерфейс
+        } else {
+          showModalWithChoices("❌ Недостатньо коштів!", [
+            { label: "OK", onClick: () => nextTurn() },
+          ]);
           updateUI();
-        },
+        }
       },
-    ]
-  );
-
-}
+    },
+    {
+      label: "❌ Відмовитись",
+      onClick: () => {
+        // console.log("Player refused to buy: ", plot.name);
+        logAction(
+          `${player.emoji} ${player.name} відмовився купувати ${plot.name}`
+        );
+        updateUI();
+      },
+    },
+  ]);
+};
 
 // Функція для переміщення гравця на стартову позицію
 const startPosition = () => {
   const player = getCurrentPlayer();
-  logAction("Гравці розташовуються на стартову позицію."+`<br>Гру починає ${player.emoji} ${player.name}`); // лог дії
-    // Ініціалізуємо гравців на стартовій позиції
-    const startCell = document.querySelector(`.cell[data-index='${0}']`);
-    players.forEach((p, idx) => {
-      const token = createToken(p, idx);
+  logAction(
+    "Гравці розташовуються на стартову позицію." +
+      `<br>Гру починає ${player.emoji} ${player.name}`
+  ); // лог дії
+  // Ініціалізуємо гравців на стартовій позиції
+  const startCell = document.querySelector(`.cell[data-index='${0}']`);
+  players.forEach((p, idx) => {
+    const token = createToken(p, idx);
 
-      p.tokenElement = token;
-      startCell.querySelector('.token-overlay').appendChild(token);
-      p.position = 0;
-    });
-    
-    player.position = 0; // Початкова позиція
+    p.tokenElement = token;
+    startCell.querySelector(".token-overlay").appendChild(token);
+    p.position = 0;
+  });
+
+  player.position = 0; // Початкова позиція
   // document.getElementById("status" ).textContent = `${player.name} починає гру!`;
-    console.log("MAP: ", map.getAllPlots());
-    updateUI();
-}
+  console.log("MAP: ", map.getAllPlots());
+  updateUI();
+};
 
 // Функція для обробки логіки покупки земельної ділянки або сплати оренди
 const hundelByPlotOrPaurent = (plot, player, roll) => {
   // console.log("hundelMove: ");
+
   // Перевірка чи можна купити
   if (plot.owner === "bank") {
     showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
-  } else if (plot.owner !== player.name) {  // Якщо поле зайняте іншим гравцем, сплачуємо оренду
-      // console.log("Pey rent: ", plot.rent);       
-    if (plot.owner !== 'bank' && plot.owner !== player.name) {
-      const success = actionPlayer.payRentToOwner(player, plot, players);// сплачуємо оренду власнику ділянки
-      if (success) {                       
-        updateUI(); // Оновлюємо інтерфейс гравців
-      } else {
-        alert(`${player.name} не зміг сплатити оренду — недостатньо коштів! [000]`);
-      }
+    return;
+  }
+
+  // Якщо поле зайняте іншим гравцем, сплачуємо оренду
+  // console.log("Pey rent: ", plot.rent);
+  if (plot.owner && plot.owner !== player.name) {
+    const success = actionPlayer.payRentToOwner(player, plot, players); // сплачуємо оренду власнику ділянки
+    if (success) {
+      updateUI(); // Оновлюємо інтерфейс гравців
+      return;
     }
-  }      
-  else {
-    // інша логіка
-  }   
-}
+  }
+
+  // Поле "Паркінг"
+  if (plot.type === "parking") {
+    // Якщо гравець знаходиться на полі "Паркінг", отримує винагороду
+    const costParking = plot.cost || 0;
+    if (costParking > 0) {
+      player.updateBalance(costParking); // Додаємо кошти на баланс гравця
+      logAction(
+        `${player.emoji} ${player.name} отримує $${costParking} винагороди з паркінгу`
+      ); // лог дії
+      plot.cost = 0; // Скидаємо вартість паркінгу
+      updateParkingDisplay(); // Оновлюємо відображення паркінгу
+      updateUI(); // Оновлюємо інтерфейс гравців
+    } else {
+      logAction(`${player.emoji} ${player.name} потрапив на порожній Паркінг`);
+      return; // Якщо паркінг порожній, нічого не робимо
+    }
+  }
+  // Податок
+  if (plot.type === "tax") {
+    if (chekTax(plot, player)) {
+      logAction(
+        `${player.emoji} ${player.name} сплачує податок ${
+          plot.name
+        } у розмірі $${Math.abs(plot.cost || 0)}`
+      );
+      updateUI(); // Оновлюємо інтерфейс гравців
+      return;
+    } else {
+      alert(
+        `${player.name} не зміг сплатити оренду — недостатньо коштів! [001]`
+      );
+      return;
+    }
+  }
+
+  alert(
+    `${player.name} не зміг сплатити оренду — недостатньо коштів! [else 003]`
+  );
+};
 
 // Функція для перевірки сплати податку
-const chekTax = (plot, player) => { 
+const chekTax = (plot, player) => {
   if (plot.type === "tax") {
     const taxAmount = Math.abs(plot.cost || 0);
     const success = player.pay(taxAmount); // сплачує банку
-  
+
     if (success) {
-      logAction(`${player.name} сплатив податок ${plot.name} у розмірі $${taxAmount}`);
       addToParking(taxAmount); // Додаємо кошти на парковку
+      updateParkingDisplay();
+      return true; // Повертаємо true, якщо податок сплачено
     } else {
-      alert(`${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`);
+      alert(
+        `${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`
+      );
       logAction(`${player.name} не зміг сплатити податок ${plot.name}`);
+      return false; // Повертаємо false, якщо податок не сплачено
     }
   }
-}
+};
 
 // Функція для додавання коштів на парковку
 const addToParking = (amount) => {
   const plots = map.getAllPlots();
-  const parking = plots.find(p => p.type === 'parking');
+  const parking = plots.find((p) => p.type === "parking");
   if (parking) {
     parking.cost = (parking.cost || 0) + amount;
   }
-}
+};
 
+// Функція для оновлення відображення паркінгу
+const updateParkingDisplay = () => {
+  const plots = map.getAllPlots();
+  const parking = plots.find((p) => p.type === "parking");
+  if (!parking) return;
+
+  const cell = document.querySelector(
+    `.cell[data-index="${parking.position}"]`
+  );
+  const display = cell?.querySelector(".parking-amount");
+  if (display) {
+    display.textContent = `$${parking.cost || 0}`;
+  }
+};
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
-export const player = {  
+export const player = {
   startPosition,
-}
+};

@@ -71,6 +71,9 @@ const buildMap = () => {
     info.innerHTML = `<strong>${plot.name || "#" + plot.position}</strong>`;
     if (plot.cost) info.innerHTML += `<br>💰 ${plot.cost}`;
     if (plot.rent) info.innerHTML += `<br>🏠 ${plot.rent}`;
+    if (plot.type === 'parking') {
+      info.innerHTML += `<br><span class="parking-amount">$${plot.cost || 0}</span>`;
+    }
     cell.appendChild(info);
 
     /* контейнер для фішок */
