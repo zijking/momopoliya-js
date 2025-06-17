@@ -30,6 +30,7 @@ const players = [
 ];
 
 let currentPlayerIndex = 0;
+let indexRoll = 0; // Індекс для кидка кубика для Тестування
 
 // отримання поточного гравця
 function getCurrentPlayer() {
@@ -118,60 +119,62 @@ const createToken = (player, idx) => {
 };
 
 // Функція для обробки ходу гравця
-function handleTurn(
-  roll = null // Параметр для кидка кубика, якщо не передано, генеруємо випадковий кидок
-)  {
-  // console.log("roll: ", roll);
-  if (typeof roll !== "number") {
-    roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
-    if(roll === 1) {
-      roll = 2; // Якщо випало 1, то вважаємо це 2
-    }
-  }
+function handleTurn()  {
 
-  // roll = 5; // Для тестування, встановлюємо фіксований кидок кубика
+  roll = getroll(); // Отримуємо кидок кубика 
 
+  roll = 4; // Для тестування, встановлюємо фіксований кидок кубика
+ 
   const player = getCurrentPlayer(); // Отримуємо поточного гравця 
-  playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
-
   const newPosition = (player.position + roll) % 40; // Обчислюємо нову позицію з урахуванням кількості полів на полі
+
+  player.lastRoll = roll; // Зберігаємо останній кидок кубика
+
+  playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
+  
   logAction(`${player.emoji}  кинув кубики 🎲: <b>${roll}</b> (з ${getPlot(player.position).name} на ${getPlot(newPosition).name})`); // лог дії   
 
   player.move(roll); // Переміщуємо гравця на нову позицію
 
   const plot = getPlot(player.position); // Отримуємо об'єкт поля за позицією
-  // console.log("currentPlot: ", plot);
-
   const plotName = getPlotName(player.position); // Отримуємо назву поля
+ 
+  chekTax(plot, player); // Перевіряємо сплату податку
+  
 
-  showModal(
-    `${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`,
-    () => {
-      // Перевірка чи можна купити
-      if (plot.owner === "bank") {
-        showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
-      } else if (plot.owner !== player.name) {  // Якщо поле зайняте іншим гравцем, сплачуємо оренду
-          // console.log("Pey rent: ", plot.rent);       
-        if (plot.owner !== 'bank' && plot.owner !== player.name) {
-          const success = actionPlayer.payRentToOwner(player, plot, players);
-          if (success) {                       
-            updateUI(); // Оновлюємо інтерфейс гравців
-          } else {
-            alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
-          }
-        }
-      }      
-      else {
-        // інша логіка
-      }   
-    }
-  );
-   // console.log("Current player: ", player);
-      // console.log("MAP: ", map.getAllPlots());
+
+  //----БЛОК ДЛЯ ТЕСТУ--------------------------
+  // if(indexRoll === 0) {
+  // //  getPlot(13).owner = players[0].name; // Для тестування, встановлюємо власника поля 13
+  // getPlot(27).owner = players[0].name; // Для тестування, встановлюємо власника поля 27
+  // // players[0].properties.push(getPlot(13)); // Додаємо поле 13 до власності гравця 1
+  // players[0].properties.push(getPlot(27)); // Додаємо поле 27 до власності гравця 1
+  //   // console.log("currentPlot: ", plot);
+  //   indexRoll++
+  // }
+  
+  //-----------------------------
+
+  
+
+  
+  showModal(`${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`, () => hundelByPlotOrPaurent(plot, player, roll) );
+      console.log("Current player: ", player);
+      console.log("MAP: ", map.getAllPlots());
    // Оновлюємо інтерфейс
         updatePlayer();
         updateUI();
         nextTurn();
+}
+
+const getroll = () => {
+  // console.log("roll: ", roll);
+  let roll = 0;   
+    roll = Math.floor(Math.random() * 12) + 1; // Генеруємо випадковий кидок від 1 до 12
+    if(roll === 1) {
+      roll = 2; // Якщо випало 1, то вважаємо це 2
+    } 
+  return roll;
 }
 
 // Функція для отримання назви поля за позицією
@@ -210,6 +213,7 @@ function highlightOwnedProperties() {
 
 // Функція для показу модального вікна з можливістю купівлі ділянки
 const showModalForByPlot = (player, plot) => { 
+  console.log("showModalForByPlot: ");
   showModalWithChoices(
     `${plot.name} доступне за $${plot.cost}. Купити?`,
     [
@@ -260,7 +264,44 @@ const startPosition = () => {
     // document.getElementById("status" ).textContent = `${player.name} починає гру!`;
     updateUI();
 }
-// 
+
+// Функція для обробки логіки покупки земельної ділянки або сплати оренди
+const hundelByPlotOrPaurent = (plot, player, roll) => {
+  // console.log("hundelMove: ");
+  // Перевірка чи можна купити
+  if (plot.owner === "bank") {
+    showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
+  } else if (plot.owner !== player.name) {  // Якщо поле зайняте іншим гравцем, сплачуємо оренду
+      // console.log("Pey rent: ", plot.rent);       
+    if (plot.owner !== 'bank' && plot.owner !== player.name) {
+      const success = actionPlayer.payRentToOwner(player, plot, players);// сплачуємо оренду власнику ділянки
+      if (success) {                       
+        updateUI(); // Оновлюємо інтерфейс гравців
+      } else {
+        alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+      }
+    }
+  }      
+  else {
+    // інша логіка
+  }   
+}
+
+// Функція для перевірки сплати податку
+const chekTax = (plot, player) => { 
+  if (plot.type === "tax") {
+    const taxAmount = Math.abs(plot.cost || 0);
+    const success = player.pay(taxAmount); // сплачує банку
+  
+    if (success) {
+      logAction(`${player.name} сплатив податок ${plot.name} у розмірі $${taxAmount}`);
+    } else {
+      alert(`${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`);
+      logAction(`${player.name} не зміг сплатити податок ${plot.name}`);
+    }
+  }
+}
+
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
 export const player = {  
