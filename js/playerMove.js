@@ -128,12 +128,14 @@ function handleTurn(
       roll = 2; // Якщо випало 1, то вважаємо це 2
     }
   }
+
+  // roll = 5; // Для тестування, встановлюємо фіксований кидок кубика
+
   const player = getCurrentPlayer(); // Отримуємо поточного гравця 
   playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
 
   const newPosition = (player.position + roll) % 40; // Обчислюємо нову позицію з урахуванням кількості полів на полі
-  logAction(`${player.emoji}  кинув кубики 🎲: ${roll} (з ${getPlot(player.position).name} на ${getPlot(newPosition).name})`); // лог дії 
-  
+  logAction(`${player.emoji}  кинув кубики 🎲: <b>${roll}</b> (з ${getPlot(player.position).name} на ${getPlot(newPosition).name})`); // лог дії   
 
   player.move(roll); // Переміщуємо гравця на нову позицію
 
@@ -152,9 +154,7 @@ function handleTurn(
           // console.log("Pey rent: ", plot.rent);       
         if (plot.owner !== 'bank' && plot.owner !== player.name) {
           const success = actionPlayer.payRentToOwner(player, plot, players);
-          if (success) {
-            alert(`${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`);
-            logAction(`${player.emoji} ${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`); // лог дії
+          if (success) {                       
             updateUI(); // Оновлюємо інтерфейс гравців
           } else {
             alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
@@ -242,10 +242,10 @@ const showModalForByPlot = (player, plot) => {
 
 }
 
-// playerMove.js — модуль для переміщення гравця на стартову позицію
-export const player = {
-  // Функція для переміщення гравця на стартову позицію
-  startPosition: () => {
+// Функція для переміщення гравця на стартову позицію
+const startPosition = () => {
+  const player = getCurrentPlayer();
+  logAction("Гравці розташовуються на стартову позицію."+`<br>Гру починає ${player.emoji} ${player.name}`); // лог дії
     // Ініціалізуємо гравців на стартовій позиції
     const startCell = document.querySelector(`.cell[data-index='${0}']`);
     players.forEach((p, idx) => {
@@ -255,9 +255,14 @@ export const player = {
       startCell.querySelector('.token-overlay').appendChild(token);
       p.position = 0;
     });
-    const player = getCurrentPlayer();
+    
     player.position = 0; // Початкова позиція
-    document.getElementById("status" ).textContent = `${player.name} починає гру!`;
+    // document.getElementById("status" ).textContent = `${player.name} починає гру!`;
     updateUI();
-  },
-};
+}
+// 
+
+// playerMove.js — модуль для переміщення гравця на стартову позицію
+export const player = {  
+  startPosition,
+}

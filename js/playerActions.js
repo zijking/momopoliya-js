@@ -33,16 +33,37 @@ const payRentToOwner = (player, plot, players) => {
   const owner = players.find((p) => p.name === plot.owner);
   if (!owner) return false;
 
-  const rent = plot.rent || 0;
+  let rent = 0;
 
+  if (plot.type === 'railway') {
+    rent = getRailwayRent(owner);
+    logAction(`${player.name} сплатив оренду $${rent} за залізницю гравцю ${owner.name}`);// лог дії
+  } else {
+    logAction(`${player.emoji} ${player.name} сплатив оренду $${plot.rent} гравцю ${plot.owner}`); // лог дії
+    rent = plot.rent || 0;
+  }
     // player.updateBalance(-rent);
     // owner.updateBalance(+rent);
   const success = player.pay(rent, owner);
   return success;
 };
 
+// Функція для підрахунку кількості залізниць, що належать гравцеві
+const countRailwaysOwnedBy = (player) =>{
+  return player.properties.filter(p => p.type === 'railway').length;
+}
+
+// Функція для отримання оренди за залізницю
+const getRailwayRent = (ownerPlayer)  => {
+  const count = countRailwaysOwnedBy(ownerPlayer);
+  return 25 * Math.pow(2, count - 1); // 25, 50, 100, 200
+}
+
+
 export default {
   buyPlot,
   salaryCheck,
   payRentToOwner,
+  countRailwaysOwnedBy,
+  getRailwayRent
 };

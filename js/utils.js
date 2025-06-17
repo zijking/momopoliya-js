@@ -1,4 +1,5 @@
-const  logAction = (text) => {
+//запис логів на сторінку в елемент <p> з id="log"
+const logAction = (text) => {
     const log = document.getElementById('log');
     const p = document.createElement('p');
     p.innerHTML = text;
