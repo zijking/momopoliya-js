@@ -124,13 +124,13 @@ const createToken = (player, idx) => {
 function handleTurn(roll = 0) {
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
 
-  // const { die1, die2, sum, isDouble } = rollDice();// Кидаємо кубики
+  const { die1, die2, sum, isDouble } = rollDice();// Кидаємо кубики
 
   //Блок для тестування кидка кубика
-  const die1 = 1;
-  const die2 = 1; // Для тестування, встановлюємо фіксовані значення кубиків
-  const isDouble = die1 === die2; // Перевіряємо, чи це
-  const sum = die1 + die2; // Сума кидка кубика
+  // const die1 = 1;
+  // const die2 = 1; // Для тестування, встановлюємо фіксовані значення кубиків
+  // const isDouble = die1 === die2; // Перевіряємо, чи це
+  // const sum = die1 + die2; // Сума кидка кубика
   //-----------------
 
   logAction(
