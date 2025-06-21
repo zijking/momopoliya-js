@@ -14,14 +14,14 @@
         "owner": "city"
     },
     {
-        "name": "🚔Суд",
+        "name": "⚖️Суд",
         "position": 30,
         "cost": 0,
         "type": "court",
         "owner": "city"
     },
     {
-        "name": "🚔Тюрма",
+        "name": "🧱Тюрма",
         "position": 10,
         "cost": 0,
         "type": "jail",

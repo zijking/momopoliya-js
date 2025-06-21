@@ -5,6 +5,7 @@ import actionPlayer from "./playerActions.js";
 import playerActions from "./playerActions.js";
 import { logAction } from "./utils.js";
 import { handleCardDraw } from "./cardEventsOld.js";
+import { emojiSet } from "./emojiSet.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -123,8 +124,21 @@ const createToken = (player, idx) => {
 // Функція для обробки ходу гравця
 function handleTurn(roll = 0) {
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
+  const { die1, die2, sum, isDouble } = rollDice(); // Кидаємо кубики
 
-  const { die1, die2, sum, isDouble } = rollDice();// Кидаємо кубики
+  // 🧱 Перевірка в'язниці
+  if (player.inJail) {
+    const result = handleJail(player);
+    if (!result.freed) {
+      // nextTurn();
+      return; // не виходить — просто передає хід
+    }
+    // Якщо вийшов — продовжуємо далі як звичайний хід
+    logAction(
+      `${player.emoji} ${player.name} вийшов з в'язниці і продовжує гру 🎉`
+    );
+  }
+  //-----
 
   //Блок для тестування кидка кубика
   // const die1 = 1;
@@ -138,6 +152,7 @@ function handleTurn(roll = 0) {
       isDouble ? "(Дубль)" : ""
     }`
   );
+
   roll = sum; // Використовуємо суму кидка кубика
 
   const newPosition = (player.position + roll) % 40; // Обчислюємо нову позицію з урахуванням кількості полів на полі
@@ -156,7 +171,7 @@ function handleTurn(roll = 0) {
       player.position = jailPosition; // тюрма
       player.inJail = true;
       logAction(
-        `${player.emoji} ${player.name} кинув дубль 3 рази підряд і потрапляє у в'язницю 🚔`
+        `${player.emoji} ${player.name} кинув дубль 3 рази підряд і потрапляє у в'язницю ${emojiSet.jail.alarm}`
       );
       updatePlayer();
       updateUI();
@@ -305,92 +320,6 @@ const startPosition = () => {
 };
 
 // Функція для обробки логіки покупки земельної ділянки або сплати оренди
-// const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
-//   // console.log("hundelMove: ");
-
-//   // Перевірка чи можна купити
-//   // if (plot.owner === "bank") {
-//   //   showModalForByPlot(player, plot); // Викликаємо функцію для показу модального вікна з можливістю купівлі ділянки
-//   // }
-//   if (plot.owner === "bank") {
-//     showModalForByPlot(player, plot, () => {
-//       if (isDouble && player.doublesCount < 3 && !player.inJail) {
-//         logAction(
-//           `${player.emoji}${player.name} отримує додатковий хід за дубль 🎲`
-//         );
-//         handleTurn();
-//       } else {
-//         player.doublesCount = 0;
-//         logAction(
-//           `${player.emoji}${player.name} передає хід наступному гравцеві`
-//         );
-//         nextTurn();
-//       }
-//     });
-//     return;
-//   }
-
-//   // Якщо поле зайняте іншим гравцем, сплачуємо оренду
-//   // console.log("Pey rent: ", plot.rent);
-//   if (plot.owner && plot.owner !== player.name) {
-//     const success = actionPlayer.payRentToOwner(player, plot, players); // сплачуємо оренду власнику ділянки
-//     if (success) {
-//       updateUI(); // Оновлюємо інтерфейс гравців
-//     }
-//   }
-
-//   // Поле "Паркінг"
-//   if (plot.type === "parking") {
-//     // Якщо гравець знаходиться на полі "Паркінг", отримує винагороду
-//     const costParking = plot.cost || 0;
-//     if (costParking > 0) {
-//       player.updateBalance(costParking); // Додаємо кошти на баланс гравця
-//       logAction(
-//         `${player.emoji} ${player.name} отримує $${costParking} винагороди з паркінгу`
-//       ); // лог дії
-//       plot.cost = 0; // Скидаємо вартість паркінгу
-//       updateParkingDisplay(); // Оновлюємо відображення паркінгу
-//       updateUI(); // Оновлюємо інтерфейс гравців
-//     } else {
-//       logAction(`${player.emoji} ${player.name} потрапив на порожній Паркінг`);
-//     }
-//   }
-//   // Податок
-//   if (plot.type === "tax") {
-//     if (chekTax(plot, player)) {
-//       logAction(
-//         `${player.emoji} ${player.name} сплачує податок ${
-//           plot.name
-//         } у розмірі $${Math.abs(plot.cost || 0)}`
-//       );
-//       updateUI(); // Оновлюємо інтерфейс гравців
-//     } else {
-//       alert(
-//         `${player.name} не зміг сплатити оренду — недостатньо коштів! [001]`
-//       );
-//     }
-//   }
-
-//   if (plot.type === "chance" || plot.type === "budget") {
-//     handleCardDraw(plot.type, player);
-//   }
-
-//   // Якщо дубль — гравець ходить ще раз
-//   // if (isDouble && player.doublesCount < 3 && !player.inJail) {
-//   //   logAction(
-//   //     `${player.emoji}${player.name} отримує додатковий хід за дубль 🎲`
-//   //   );
-//   //   handleTurn(); // другий хід одразу
-//   // } else {
-//   //   player.doublesCount = 0;
-//   //   nextTurn(); // передаємо хід іншому гравцю
-
-//   // }
-
-//   alert(
-//     `${player.name} не зміг сплатити оренду — недостатньо коштів! [else 003]`
-//   );
-// };
 const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
   console.log("HundelByPlotOrPayrent: ", plot, player, roll, isDouble);
 
@@ -463,6 +392,21 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     return finishTurn(player, isDouble);
   }
 
+  /* ⚖️  Поле «Суд» — одразу у в'язницю */
+  if (plot.type === "court") {
+    player.position = jailPosition; // позиція клітинки «В'язниця»
+    player.inJail = true;
+    player.jailTurns = 0;
+    player.doublesCount = 0;
+
+    logAction(
+      `${player.emoji} ${player.name} потрапляє на ⚖️ Суд і відправляється у 🧱 В'язницю`
+    );
+    updatePlayer();
+    updateUI();
+    return finishTurn(player, isDouble);
+  }
+
   // Якщо поле не обробилось
   console.log(
     `row: [467]${player.name} не зміг обробити дію — невідоме поле [else 003]`
@@ -525,6 +469,47 @@ const updateParkingDisplay = () => {
     display.textContent = `$${parking.cost || 0}`;
   }
 };
+
+// Функція для обробки в'язниці
+function handleJail(player) {
+  player.jailTurns++;
+
+  logAction(
+    `${player.emoji} ${player.name} у в'язниці (хід ${player.jailTurns} з 3)`
+  );
+
+  const { die1, die2, sum, isDouble } = rollDice();
+  logAction(`${player.emoji} кидає кубики у в'язниці: 🎲 ${die1} і ${die2}`);
+
+  if (isDouble) {
+    logAction(
+      `${player.emoji} ${player.name} викидає дубль і виходить з в'язниці!`
+    );
+    player.inJail = false;
+    player.jailTurns = 0;
+    player.move(sum);
+    return { freed: true, roll: sum, isDouble: true };
+  }
+
+  if (player.jailTurns >= 3) {
+    logAction(
+      `${player.emoji} ${player.name} відсидів 3 ходи і виходить з в'язниці`
+    );
+    player.inJail = false;
+    player.jailTurns = 0;
+    player.updateBalance(-50); // штраф
+    player.move(sum);
+    return { freed: true, roll: sum, isDouble: false };
+  }
+
+  // ще сидить
+  logAction(
+    `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`
+  );
+  nextTurn();
+  return { freed: false };
+}
+
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
 export const playerMain = {
