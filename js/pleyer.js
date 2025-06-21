@@ -1,12 +1,13 @@
 class Player {
     constructor(name, emoji = '🐭') {
-        this.id = Date.now() + Math.floor(Math.random() * 1000); // Унікальний ID
-        this.name = name;
-        this.emoji = emoji;
-        this.position = 0;
-        this.balance = 1500;
-        this.properties = [];
-        this.inJail = false;
+      this.id = Date.now() + Math.floor(Math.random() * 1000); // Унікальний ID
+      this.name = name;
+      this.emoji = emoji;
+      this.position = 0;
+      this.balance = 1500;
+      this.properties = [];
+      this.inJail = false;
+      this.doublesCount = 0; // у конструкторі Player
     }
 
     move(steps) {

@@ -51,21 +51,21 @@
     {
         "name": "💲Бюджет",
         "position": 2,
-        "type": "community",
+        "type": "budget",
         "owner": "city"
     },
     {
         "name": "💲Бюджет",
         "position": 17,
         "cost": 0,
-        "type": "community",
+        "type": "budget",
         "owner": "city"
     },
     {
         "name": "💲Бюджет",
         "position": 36,
         "cost": 0,
-        "type": "community",
+        "type": "budget",
         "owner": "city"
     },
     {

@@ -23,7 +23,8 @@
   {
     "number": 5,
     "message": "Безкоштовно вийдіть з тюрми.",
-    "value": 0
+    "value": 0,
+    "jail": false
   },
   {
     "number": 6,
