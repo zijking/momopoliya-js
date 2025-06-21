@@ -175,7 +175,7 @@ function handleTurn(roll = 0) {
   const plotName = getPlotName(player.position); // Отримуємо назву поля
 
   showModal(
-    `${player.emoji} ${player.name} кинув 🎲 <b>${roll}</b><br>Переходить на: <strong>${plotName}</strong>`,
+    `${player.emoji} ${player.name} кинув 🎲 <b>${die1} i ${die2}</b><br>Переходить на: <strong>${plotName}</strong>`,
     () => hundelByPlotOrPayrent(plot, player, roll, isDouble)
   );
 
@@ -447,7 +447,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
 
   // Шанс або Бюджет
   if (plot.type === "chance" || plot.type === "budget") {
-    console.log("plot.type: CHANCE OR BUDGET: ", plot.type);
+    // console.log("plot.type: CHANCE OR BUDGET: ", plot.type);
     handleCardDraw(plot.type, player, () => finishTurn(player, isDouble));
     // handleCardDraw(plot.type, player);
     // return finishTurn(player, isDouble);
