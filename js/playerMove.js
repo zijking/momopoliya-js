@@ -160,7 +160,7 @@ function handleTurn(roll = 0) {
   player.lastRoll = roll; // Зберігаємо останній кидок кубика
 
   logAction(
-    `${player.emoji}  кинув кубики 🎲: <b>${roll}</b> (з ${
+    `${player.emoji}  кинув суму кубиків 🎲: <b>${roll}</b> (з ${
       getPlot(player.position).name
     } на ${getPlot(newPosition).name})`
   ); // лог дії кидка кубика
@@ -195,7 +195,7 @@ function handleTurn(roll = 0) {
   );
 
   console.log("Current player: ", player);
-  console.log("MAP: ", map.getAllPlots());
+  console.log("MAP_Plot: ", plot);
 
   // Оновлюємо інтерфейс
   updatePlayer();
@@ -321,7 +321,7 @@ const startPosition = () => {
 
 // Функція для обробки логіки покупки земельної ділянки або сплати оренди
 const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
-  console.log("HundelByPlotOrPayrent: ", plot, player, roll, isDouble);
+  // console.log("HundelByPlotOrPayrent: ", plot, player, roll, isDouble);
 
   // Купівля у банку
   if (plot.owner === "bank") {
@@ -339,7 +339,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
         nextTurn();
       }
     });
-    return;
+    return finishTurn(player, isDouble);
   }
 
   // Поле Паркінг
@@ -347,7 +347,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     const sum = plot.cost || 0;
     if (sum > 0) {
       player.updateBalance(sum);
-      plot.amount = 0;
+      plot.cost = 0;
       logAction(
         `${player.emoji} ${player.name} отримує $${sum} винагороди з паркінгу`
       );
@@ -379,17 +379,6 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     // console.log("plot.type: CHANCE OR BUDGET: ", plot.type);
     handleCardDraw(plot.type, player, () => finishTurn(player, isDouble));
     // handleCardDraw(plot.type, player);
-    // return finishTurn(player, isDouble);
-  }
-
-  // Оренда іншому гравцеві
-  if (plot.owner && plot.owner !== player.name && plot.owner !== "city") {
-    const success = actionPlayer.payRentToOwner(player, plot, players);
-    if (!success) {
-      alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
-    }
-    updateUI();
-    return finishTurn(player, isDouble);
   }
 
   /* ⚖️  Поле «Суд» — одразу у в'язницю */
@@ -407,9 +396,19 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     return finishTurn(player, isDouble);
   }
 
+  // Оренда іншому гравцеві
+  if (plot.owner && plot.owner !== player.name && plot.owner !== "city") {
+    const success = actionPlayer.payRentToOwner(player, plot, players);
+    if (!success) {
+      alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+    }
+    updateUI();
+    return finishTurn(player, isDouble);
+  }
+
   // Якщо поле не обробилось
   console.log(
-    `row: [467]${player.name} не зміг обробити дію — невідоме поле [else 003]`
+    `row: [411]${player.name} не зміг обробити дію — невідоме поле [else 003]`
   );
   return finishTurn(player, isDouble);
 };
