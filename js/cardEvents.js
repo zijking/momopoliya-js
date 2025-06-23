@@ -1,10 +1,11 @@
+import { logAction } from "./utils.js";
+
 // js/cardEvents.js
 // --------------------------------------------------
 // Завантаження та обробка карток «Шанс» і «Бюджет»
 // --------------------------------------------------
 
-import { updatePlayer, updateUI } from "./playerMove.js";
-import { logAction } from "./logActions.js";
+import { playerMain } from "./playerMove.js";
 import { showModal } from "./modal.js"; // твоя функція модалки
 
 /* джерела JSON-файлів */
@@ -70,7 +71,7 @@ export async function handleCardDraw(type, player, onComplete) {
 
       const passedStart = target < player.position && !card.jail;
       player.position = target;
-      updatePlayer();
+      playerMain.updatePlayer();
 
       if (passedStart) {
         player.updateBalance(200);
@@ -85,10 +86,10 @@ export async function handleCardDraw(type, player, onComplete) {
       player.position = 10; // позиція в'язниці
       player.inJail = true;
       logAction(`${player.emoji} ${player.name} потрапляє у в'язницю 🚓`);
-      updatePlayer();
+      playerMain.updatePlayer();
     }
 
-    updateUI(); // оновити панель гравців / баланс
+    playerMain.updateUI(); // оновити панель гравців / баланс
 
     /* повертаємо керування циклу гри */
     if (typeof onComplete === "function") onComplete();

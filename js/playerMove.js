@@ -4,7 +4,7 @@ import { showModal, showModalWithChoices } from "./modal.js";
 import actionPlayer from "./playerActions.js";
 import playerActions from "./playerActions.js";
 import { logAction } from "./utils.js";
-import { handleCardDraw } from "./cardEventsOld.js";
+import { handleCardDraw } from "./cardEvents.js";
 import { emojiSet } from "./emojiSet.js";
 
 //прив'язка до елементів DOM кидок кубика
@@ -515,5 +515,6 @@ function handleJail(player) {
 export const playerMain = {
   startPosition,
   updateUI,
-  updatePlayer,
+  updatePlayer
+
 };
