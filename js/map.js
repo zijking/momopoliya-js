@@ -5,7 +5,6 @@ const allPlots = []; // 🔹 Масив для всіх полів
 
 // 🔹 Функція для побудови карти
 const buildMap = () => {
-  
   console.log("Start buildMap");
 
   const board = document.getElementById("board");
@@ -71,8 +70,10 @@ const buildMap = () => {
     info.innerHTML = `<strong>${plot.name || "#" + plot.position}</strong>`;
     if (plot.cost) info.innerHTML += `<br>💰 ${plot.cost}`;
     if (plot.rent) info.innerHTML += `<br>🏠 ${plot.rent}`;
-    if (plot.type === 'parking') {
-      info.innerHTML += `<br><span class="parking-amount">$${plot.cost || 0}</span>`;
+    if (plot.type === "parking") {
+      info.innerHTML += `<br><span class="parking-amount">$${
+        plot.cost || 0
+      }</span>`;
     }
     cell.appendChild(info);
 
@@ -96,6 +97,8 @@ const buildMap = () => {
     tokenOverlay.className = "token-overlay"; // додатковий блок для фішок
     cell.appendChild(tokenOverlay);
 
+    cell.onclick = mortgagePlotOrNot; // 🔹 Додаємо обробник кліку для застави
+
     board.appendChild(cell);
     // allPlots.push(plot); // 🔹 Додаємо клітинку до загального масиву
     cells.push(cell);
@@ -110,6 +113,25 @@ const buildMap = () => {
   };
 };
 
+// 🔹 Функція для обробник кліку для застави
+const mortgagePlotOrNot = () => {
+  const current = getCurrentPlayer();
+  if (p.owner !== current.name) return;
+
+  if (!p.mortgage) {
+    showModalWithChoices(`Здати ${p.name} в заставу за $${p.cost / 2}?`, [
+      { label: "✅ Заставити", onClick: () => mortgagePlot(current, p) },
+      { label: "❌ Скасувати", onClick: closeModal },
+    ]);
+  } else {
+    const redemption = Math.ceil(p.cost * 1.1);
+    showModalWithChoices(`Викупити ${p.name} за $${redemption}?`, [
+      { label: "✅ Викупити", onClick: () => redeemPlot(current, p) },
+      { label: "❌ Скасувати", onClick: closeModal },
+    ]);
+  }
+};
+  
 // 🔹 Функція для отримання всіх клітинок
 const getAllPlots = () => {
   return allPlots;

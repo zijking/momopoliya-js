@@ -12,6 +12,24 @@ document.getElementById("roll").addEventListener("click", () => {
   handleTurn();
 });
 
+// Прив'язка до кнопки "Кінець ходу"
+const endTurnBtn = document.getElementById("endTurn");
+
+endTurnBtn.addEventListener("click", endTurn);
+
+// Функція для завершення ходу гравця
+function endTurn() {
+  // 🔒 блокуємо кнопку, щоб не клікнули двічі
+  endTurnBtn.disabled = true;
+  const currentPlayer = getCurrentPlayer(); // отримуємо поточного гравця
+  currentPlayer.doublesCount = 0; // скидаємо лічильник дублів
+  logAction(`${currentPlayer.emoji} ${currentPlayer.name} завершує хід ⏭️`);
+  enableRollButton(); // розблоковуємо кнопку кидка кубика
+  nextTurn(); // 👉 передаємо хід
+  const nextPlayer = getCurrentPlayer(); // отримуємо наступного гравця
+  infoPlayer(nextPlayer); // оновлюємо інформацію про наступного гравця
+}
+
 const jailPosition = 10; // Позиція в'язниці
 
 const randomPlayers = [
@@ -121,9 +139,18 @@ const createToken = (player, idx) => {
   return token;
 };
 
+// Функція для відображення інформації про гравця
+function infoPlayer(player) {
+  document.getElementById(
+    "infoText"
+  ).textContent = `Хід: ${player.emoji} ${player.name}  —  натисни «Передати хід», коли завершиш дії`;
+}
+
 // Функція для обробки ходу гравця
 function handleTurn(roll = 0) {
+  endTurnBtn.disabled = true; // Блокуємо кнопку "Кінець ходу"
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
+  infoPlayer(player); // Відображаємо інформацію про гравця
   const { die1, die2, sum, isDouble } = rollDice(); // Кидаємо кубики
 
   // 🧱 Перевірка в'язниці
@@ -200,7 +227,6 @@ function handleTurn(roll = 0) {
   // Оновлюємо інтерфейс
   updatePlayer();
   updateUI();
-  // nextTurn(); // Передаємо хід наступному гравцеві
 }
 
 // Функція для отримання випадкового кидка кубика
@@ -236,7 +262,7 @@ const getPlot = (position) => {
 };
 
 // Функція для підсвічування полів у власності гравців
-function highlightOwnedProperties() {
+const highlightOwnedProperties = () => {
   // Скидаємо попередні позначення
   document.querySelectorAll(".cell").forEach((cell) => {
     for (let i = 0; i < players.length; i++) {
@@ -254,7 +280,18 @@ function highlightOwnedProperties() {
       }
     });
   });
-}
+
+  map.getAllPlots().forEach((plot) => {
+    const cell = document.querySelector(`.cell[data-index='${plot.position}']`);
+    if (!cell) return;
+
+    if (plot.mortgage) {
+      cell.classList.add("mortgaged"); // 🔘 якщо заставлено — сірий фон поверх
+    } else {
+      cell.classList.remove("mortgaged");
+    }
+  });
+};
 
 // Функція для показу модального вікна з можливістю купівлі ділянки
 const showModalForByPlot = (player, plot, onComplete) => {
@@ -319,27 +356,36 @@ const startPosition = () => {
   updateUI();
 };
 
+// Функція для розблокування кнопки "Кінець ходу"
+function enableEndTurn() {
+  endTurnBtn.disabled = false;
+}
+
+// Функція для блокування кнопки "Кидок кубика"
+function disableRollButton() {
+  const rollButton = document.getElementById("roll");
+  rollButton.disabled = true; // Блокуємо кнопку кидка кубика
+}
+
+// Функція для розблокування кнопки "Кидок кубика"
+function enableRollButton() {
+  const rollButton = document.getElementById("roll");
+  rollButton.disabled = false; // Розблокуємо кнопку кидка кубика
+}
+
+// Функція для обробки покупки земельної ділянки у банку
+const handleBankPurchase = (player, plot, isDouble) => {
+  showModalForByPlot(player, plot, () => finishTurn(player, isDouble));
+};
+
 // Функція для обробки логіки покупки земельної ділянки або сплати оренди
 const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
   // console.log("HundelByPlotOrPayrent: ", plot, player, roll, isDouble);
 
   // Купівля у банку
   if (plot.owner === "bank") {
-    showModalForByPlot(player, plot, () => {
-      if (isDouble && player.doublesCount < 3 && !player.inJail) {
-        logAction(
-          `${player.emoji} ${player.name} отримує додатковий хід за дубль 🎲`
-        );
-        handleTurn();
-      } else {
-        player.doublesCount = 0;
-        logAction(
-          `${player.emoji} ${player.name} передає хід наступному гравцеві`
-        );
-        nextTurn();
-      }
-    });
-    return finishTurn(player, isDouble);
+    handleBankPurchase(player, plot, isDouble);
+    return;
   }
 
   // Поле Паркінг
@@ -377,8 +423,9 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
   // Шанс або Бюджет
   if (plot.type === "chance" || plot.type === "budget") {
     // console.log("plot.type: CHANCE OR BUDGET: ", plot.type);
-    handleCardDraw(plot.type, player, () => finishTurn(player, isDouble));
+    handleCardDraw(plot.type, player, () => finishTurn(player, isDouble), plot, isDouble, players);
     // handleCardDraw(plot.type, player);
+    return;
   }
 
   /* ⚖️  Поле «Суд» — одразу у в'язницю */
@@ -419,9 +466,10 @@ function finishTurn(player, isDouble) {
     logAction(`${player.emoji} ${player.name} отримує ще один хід 🎲`);
     handleTurn();
   } else {
-    player.doublesCount = 0;
-    logAction(`${player.emoji} ${player.name} передає хід наступному гравцю`);
-    nextTurn();
+    // player.doublesCount = 0;
+    // logAction(`${player.emoji} ${player.name} передає хід наступному гравцю`);
+    enableEndTurn();
+    disableRollButton();
   }
 }
 
@@ -505,15 +553,15 @@ function handleJail(player) {
   logAction(
     `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`
   );
-  nextTurn();
+  enableEndTurn();
   return { freed: false };
 }
-
 
 // playerMove.js — модуль для переміщення гравця на стартову позицію
 export const playerMain = {
   startPosition,
   updateUI,
-  updatePlayer
+  updatePlayer,
+  handleBankPurchase,
 
 };

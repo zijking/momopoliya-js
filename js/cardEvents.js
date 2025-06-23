@@ -1,4 +1,5 @@
 import { logAction } from "./utils.js";
+import { emojiSet } from "./emojiSet.js";
 
 // js/cardEvents.js
 // --------------------------------------------------
@@ -6,6 +7,7 @@ import { logAction } from "./utils.js";
 // --------------------------------------------------
 
 import { playerMain } from "./playerMove.js";
+import actionPlayer from "./playerActions.js";
 import { showModal } from "./modal.js"; // твоя функція модалки
 
 /* джерела JSON-файлів */
@@ -35,15 +37,24 @@ export async function loadCards(type) {
  * застосовує її ефект, а тоді викликає onComplete() для
  * продовження ходу (finishTurn / nextTurn).
  */
-export async function handleCardDraw(type, player, onComplete) {
+export async function handleCardDraw(
+  type,
+  player,
+  onComplete,
+  plot,
+  isDouble,
+  players
+) {
+  // console.log(`handleCardDraw RUN: ${type}`, player);
   const cards = await loadCards(type);
   const card = cards[Math.floor(Math.random() * cards.length)];
 
   logAction(
-    `${player.emoji} ${player.name} тягне картку ${type.toUpperCase()}: «${
-      card.message
-    }»`
+    `${player.emoji} ${player.name} тягне картку ${
+      emojiSet.fields[type]
+    } ${type.toUpperCase()}: «${card.message}»`
   );
+  // console.log("emojiSet.fields.type: ", type);
 
   // показуємо текст картки в модалці
   showModal(card.message, () => {
@@ -67,6 +78,19 @@ export async function handleCardDraw(type, player, onComplete) {
       // від'ємне — крок назад
       if (card.position < 0) {
         target = (player.position + card.position + 40) % 40;
+      }
+
+      if (plot.owner === "bank") {
+        playerMain.handleBankPurchase(player, plot, isDouble);
+      }
+
+      // Оренда іншому гравцеві
+      if (plot.owner && plot.owner !== player.name && plot.owner !== "city") {
+        const success = actionPlayer.payRentToOwner(player, plot, players);
+        if (!success) {
+          alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+        }
+        updateUI();
       }
 
       const passedStart = target < player.position && !card.jail;

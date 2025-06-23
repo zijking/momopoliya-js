@@ -31,8 +31,15 @@ const payRentToOwner = (player, plot, players) => {
   if (!plot.owner || plot.owner === "bank" || plot.owner === player.name)
     return false;
 
-  const owner = players.find((p) => p.name === plot.owner);// знайти власника ділянки
+  const owner = players.find((p) => p.name === plot.owner); // знайти власника ділянки
   if (!owner) return false;
+
+  if (plot.mortgage) {
+    logAction(
+      `${player.emoji} ${player.name} не сплачує оренду за заставлену ділянку ${plot.name}`
+    ); // лог дії
+    return false;
+  } // 🔑 у заставі → rent = 0
 
   let rent = 0;
 
@@ -85,8 +92,44 @@ const getCompanyRent = (ownerPlayer, roll) => {
   return 4 * roll;
 };
 
+// Функція для застави ділянки
+const mortgagePlot = (player, plot) => {
+  if (plot.owner !== player.name || plot.mortgage) return false;
+
+  plot.mortgage = true;
+  const payout = Math.floor(plot.cost / 2);
+  player.updateBalance(payout);
+
+  logAction(
+    `🏦 ${player.emoji} ${player.name} здає ${plot.name} в заставу й отримує $${payout}`
+  );
+  highlightOwnedProperties(); // виділяємо сірим
+  updateUI();
+  return true;
+};
+
+// Функція для викупу заставленої ділянки
+const redeemPlot = (player, plot) => {
+  if (plot.owner !== player.name || !plot.mortgage) return false;
+
+  const redemption = Math.ceil(plot.cost * 1.1); // +10 %
+  if (player.balance < redemption) return false;
+
+  plot.mortgage = false;
+  player.updateBalance(-redemption);
+
+  logAction(
+    `💵 ${player.emoji} ${player.name} викуповує ${plot.name} за $${redemption}`
+  );
+  highlightOwnedProperties();
+  updateUI();
+  return true;
+};
+
 export default {
   buyPlot,
   salaryCheck,
   payRentToOwner,
+  mortgagePlot,
+  redeemPlot,
 };
