@@ -553,6 +553,7 @@ function handleJail(player) {
   logAction(
     `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`
   );
+  disableRollButton();
   enableEndTurn();
   return { freed: false };
 }
@@ -563,5 +564,5 @@ export const playerMain = {
   updateUI,
   updatePlayer,
   handleBankPurchase,
-
+  hundelByPlotOrPayrent,
 };

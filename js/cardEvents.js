@@ -79,23 +79,9 @@ export async function handleCardDraw(
       if (card.position < 0) {
         target = (player.position + card.position + 40) % 40;
       }
-
-      if (plot.owner === "bank") {
-        playerMain.handleBankPurchase(player, plot, isDouble);
-      }
-
-      // Оренда іншому гравцеві
-      if (plot.owner && plot.owner !== player.name && plot.owner !== "city") {
-        const success = actionPlayer.payRentToOwner(player, plot, players);
-        if (!success) {
-          alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
-        }
-        updateUI();
-      }
-
+   
       const passedStart = target < player.position && !card.jail;
       player.position = target;
-      playerMain.updatePlayer();
 
       if (passedStart) {
         player.updateBalance(200);
@@ -103,6 +89,8 @@ export async function handleCardDraw(
           `${player.emoji} ${player.name} проходить Старт і отримує $200`
         );
       }
+      // оновлюємо позицію гравця
+      playerMain.hundelByPlotOrPayrent(plot, player, 0, isDouble);
     }
 
     /* ► Тюрма */
