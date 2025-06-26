@@ -12,8 +12,8 @@ import { showModal } from "./modal.js"; // твоя функція модалк�
 
 /* джерела JSON-файлів */
 const CARD_SRC = {
-  chance: "../src/chanceCard.json",
-  budget: "../src/budgetCard.json",
+  chance: "./src/chanceCard.json",
+  budget: "./src/budgetCard.json",
 };
 
 /* кеш, щоб не тягнути файли щоразу */
