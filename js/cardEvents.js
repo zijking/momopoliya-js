@@ -7,7 +7,6 @@ import { emojiSet } from "./emojiSet.js";
 // --------------------------------------------------
 
 import { playerMain } from "./playerMove.js";
-import actionPlayer from "./playerActions.js";
 import { showModal } from "./modal.js"; // твоя функція модалки
 
 /* джерела JSON-файлів */
