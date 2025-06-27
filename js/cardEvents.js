@@ -78,7 +78,8 @@ export async function handleCardDraw(
       if (card.position < 0) {
         target = (player.position + card.position + 40) % 40;
       }
-   
+
+      //визначення чи гравець перетинає поле Старт
       const passedStart = target < player.position && !card.jail;
       player.position = target;
 
@@ -88,8 +89,17 @@ export async function handleCardDraw(
           `${player.emoji} ${player.name} проходить Старт і отримує $200`
         );
       }
-      // оновлюємо позицію гравця
-      playerMain.hundelByPlotOrPayrent(plot, player, 0, isDouble);
+      const nwePlot = playerMain.getPlot(player.position);
+
+      if (nwePlot) {
+        playerMain.hundelByPlotOrPayrent(nwePlot, player, 0, isDouble);
+        playerMain.updatePlayer();
+      } else {
+        console.error(
+          `Помилка: не знайдено ділянку для позиції ${player.position}`
+        );
+        playerMain.updatePlayer();
+      }
     }
 
     /* ► Тюрма */
@@ -98,6 +108,13 @@ export async function handleCardDraw(
       player.inJail = true;
       logAction(`${player.emoji} ${player.name} потрапляє у в'язницю 🚓`);
       playerMain.updatePlayer();
+    }
+
+    if (card.jailFree) {
+      player.jailFree += 1; // збільшуємо кількість карток "Вийти з в'язниці безкоштовно"
+      logAction(
+        `${player.emoji} ${player.name} отримує картку "Вийти з в'язниці безкоштовно"`
+      );
     }
 
     playerMain.updateUI(); // оновити панель гравців / баланс

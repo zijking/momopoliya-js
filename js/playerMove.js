@@ -52,7 +52,7 @@ const players = [
 ];
 
 let currentPlayerIndex = 0;
-let indexRoll = 0; // Індекс для кидка кубика для Тестування
+
 
 // отримання поточного гравця
 function getCurrentPlayer() {
@@ -150,8 +150,7 @@ function infoPlayer(player) {
 function handleTurn(roll = 0) {
   endTurnBtn.disabled = true; // Блокуємо кнопку "Кінець ходу"
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
-  infoPlayer(player); // Відображаємо інформацію про гравця
-  const { die1, die2, sum, isDouble } = rollDice(); // Кидаємо кубики
+  infoPlayer(player); // Відображаємо інформацію про гравця  
 
   // 🧱 Перевірка в'язниці
   if (player.inJail) {
@@ -164,7 +163,8 @@ function handleTurn(roll = 0) {
     logAction(
       `${player.emoji} ${player.name} вийшов з в'язниці і продовжує гру 🎉`
     );
-  }
+  }  
+  const { die1, die2, sum, isDouble } = rollDice(); // Кидаємо кубики
   //-----
 
   //Блок для тестування кидка кубика
@@ -245,7 +245,9 @@ const getroll = () => {
 const rollDice = () => {
   const die1 = Math.floor(Math.random() * 6) + 1;
   const die2 = Math.floor(Math.random() * 6) + 1;
-  return { die1, die2, sum: die1 + die2, isDouble: die1 === die2 };
+  // return { die1, die2, sum: die1 + die2, isDouble: die1 === die2 };
+
+  return { die1: 3, die2: 4, sum: 7, isDouble: false }; //for TEST
 };
 
 // Функція для отримання назви поля за позицією
@@ -422,8 +424,18 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
 
   // Шанс або Бюджет
   if (plot.type === "chance" || plot.type === "budget") {
+    if (roll === 0) {
+      return finishTurn(player, isDouble);
+    }
     // console.log("plot.type: CHANCE OR BUDGET: ", plot.type);
-    handleCardDraw(plot.type, player, () => finishTurn(player, isDouble), plot, isDouble, players);
+    handleCardDraw(
+      plot.type,
+      player,
+      () => finishTurn(player, isDouble),
+      plot,
+      isDouble,
+      players
+    );
     // handleCardDraw(plot.type, player);
     return;
   }
@@ -447,7 +459,9 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
   if (plot.owner && plot.owner !== player.name && plot.owner !== "city") {
     const success = actionPlayer.payRentToOwner(player, plot, players);
     if (!success) {
-      alert(`${player.name} не зміг сплатити оренду — недостатньо коштів!`);
+      alert(
+        `${player.name} не зміг сплатити оренду — недостатньо коштів![465]`
+      );
     }
     updateUI();
     return finishTurn(player, isDouble);
@@ -517,9 +531,49 @@ const updateParkingDisplay = () => {
   }
 };
 
+// Функція для показу модального вікна з карткою "Вийти з в'язниці безкоштовно"
+const showModalJailFree = (player) =>   {
+  showModalWithChoices(
+    "🧾 Ви маєте картку «Вийти з в'язниці безкоштовно». Використати її?",
+    [
+      {
+        label: "✅ Так, використати",
+        onClick: () => {
+          // логіка виходу з в'язниці
+          player.inJail = false;
+          player.jailTurns = 0;
+          player.jailFree -= 1; // або видаляєш з масиву карток
+          logAction(
+            `${player.emoji} ${player.name} використовує картку «Вийти з в'язниці»`
+          );
+          updatePlayer();
+          updateUI();
+          return true;
+        },
+      },
+      {
+        label: "❌ Ні",
+        onClick: () => {
+          logAction(
+            `${player.emoji} ${player.name} вирішив залишитись у в'язниці ще на один хід`
+          );
+          return false; // якщо не хоче використовувати картку,      
+        },
+      },
+    ]
+  );
+}
+
 // Функція для обробки в'язниці
 function handleJail(player) {
   player.jailTurns++;
+
+  if (player.jailFree > 0) {     
+    const res = showModalJailFree(player);    
+    if (res) {
+      return { freed: true, sum: 0, isDouble: false }; // якщо вийшов з в'язниці
+    }
+  }
 
   logAction(
     `${player.emoji} ${player.name} у в'язниці (хід ${player.jailTurns} з 3)`
@@ -565,4 +619,7 @@ export const playerMain = {
   updatePlayer,
   handleBankPurchase,
   hundelByPlotOrPayrent,
+  highlightOwnedProperties,
+  getPlot,
+  getCurrentPlayer,
 };

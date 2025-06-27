@@ -1,4 +1,6 @@
+import { playerMain } from "./playerMove.js";
 import { logAction } from "./utils.js";
+import { showModalWithChoices } from "./modal.js";
 
 //купівля ділянки
 const buyPlot = (player, plot) => {
@@ -103,8 +105,8 @@ const mortgagePlot = (player, plot) => {
   logAction(
     `🏦 ${player.emoji} ${player.name} здає ${plot.name} в заставу й отримує $${payout}`
   );
-  highlightOwnedProperties(); // виділяємо сірим
-  updateUI();
+  playerMain.highlightOwnedProperties(); // виділяємо сірим
+  playerMain.updateUI();
   return true;
 };
 
@@ -121,9 +123,42 @@ const redeemPlot = (player, plot) => {
   logAction(
     `💵 ${player.emoji} ${player.name} викуповує ${plot.name} за $${redemption}`
   );
-  highlightOwnedProperties();
-  updateUI();
+  playerMain.highlightOwnedProperties();
+  playerMain.updateUI();
   return true;
+};
+
+// 🔹 Функція для обробник кліку для застави
+const mortgagePlotOrNot = (plot) => {
+  console.log("THIS cell: ", plot);
+
+  const current = playerMain.getCurrentPlayer();
+  console.log("Current player in MORTGAGE: ", current);
+
+  if (plot.owner !== current.name) return;
+
+  if (!plot.mortgage) {
+    showModalWithChoices(`Здати ${plot.name} в заставу за $${plot.cost / 2}?`, [
+      { label: "✅ Заставити", onClick: () => mortgagePlot(current, plot) },
+      {
+        label: "❌ Скасувати",
+        onClick: () => {
+          playerMain.updateUI();
+        },
+      },
+    ]);
+  } else {
+    const redemption = Math.ceil(plot.cost * 1.1);
+    showModalWithChoices(`Викупити ${plot.name} за $${redemption}?`, [
+      { label: "✅ Викупити", onClick: () => redeemPlot(current, plot) },
+      {
+        label: "❌ Скасувати",
+        onClick: () => {
+          playerMain.updateUI();
+        },
+      },
+    ]);
+  }
 };
 
 export default {
@@ -132,4 +167,5 @@ export default {
   payRentToOwner,
   mortgagePlot,
   redeemPlot,
+  mortgagePlotOrNot,
 };

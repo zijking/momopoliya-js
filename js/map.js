@@ -1,3 +1,5 @@
+import playerActions from "./playerActions.js";
+
 const landPlots = []; // 🔹 Масив для полів з landPlots.json
 const companyPlots = []; // 🔹 Масив для полів з companyPlots.json
 const mainAreas = []; // Основні поля
@@ -97,7 +99,9 @@ const buildMap = () => {
     tokenOverlay.className = "token-overlay"; // додатковий блок для фішок
     cell.appendChild(tokenOverlay);
 
-    cell.onclick = mortgagePlotOrNot; // 🔹 Додаємо обробник кліку для застави
+    cell.onclick = () => {
+      playerActions.mortgagePlotOrNot(plot);
+    }; // 🔹 Додаємо обробник кліку для застави
 
     board.appendChild(cell);
     // allPlots.push(plot); // 🔹 Додаємо клітинку до загального масиву
@@ -113,25 +117,6 @@ const buildMap = () => {
   };
 };
 
-// 🔹 Функція для обробник кліку для застави
-const mortgagePlotOrNot = () => {
-  const current = getCurrentPlayer();
-  if (p.owner !== current.name) return;
-
-  if (!p.mortgage) {
-    showModalWithChoices(`Здати ${p.name} в заставу за $${p.cost / 2}?`, [
-      { label: "✅ Заставити", onClick: () => mortgagePlot(current, p) },
-      { label: "❌ Скасувати", onClick: closeModal },
-    ]);
-  } else {
-    const redemption = Math.ceil(p.cost * 1.1);
-    showModalWithChoices(`Викупити ${p.name} за $${redemption}?`, [
-      { label: "✅ Викупити", onClick: () => redeemPlot(current, p) },
-      { label: "❌ Скасувати", onClick: closeModal },
-    ]);
-  }
-};
-  
 // 🔹 Функція для отримання всіх клітинок
 const getAllPlots = () => {
   return allPlots;
@@ -178,14 +163,12 @@ const getDetails = (plot) => {
     }
     details.innerHTML = lines.join("<br>");
   } else {
-    return null; // суд, парковка, в'язниця та інші не мають деталей    
+    return null; // суд, парковка, в'язниця та інші не мають деталей
   }
 
   // console.log("Details: ", details);
   return details;
 };
-
-
 
 export default {
   buildMap,

@@ -8,7 +8,8 @@ class Player {
     this.properties = [];
     this.inJail = false;
     this.jailTurns = 0;
-    this.doublesCount = 0; // у конструкторі Player
+    this.jailFree = 0; // Кількість карток "Вийти з в'язниці безкоштовно"
+    this.doublesCount = 0; 
   }
 
   move(steps) {
@@ -17,6 +18,7 @@ class Player {
 
   updateBalance(amount) {
     this.balance += amount;
+    console.log(`${this.emoji}${this.name} тепер має ${this.balance} монет.`); //Лог БАЛАНСУ
   }
 
   addProperty(property) {
