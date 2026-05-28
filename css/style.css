@@ -376,3 +376,15 @@ body {
     display: block;
     margin-top: 17px;
 }
+/* Moved inline styles from #dice-overlay to here to avoid inline styling */
+#dice-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 300px;
+    z-index: 999;
+    display: none;
+    pointer-events: none;
+}

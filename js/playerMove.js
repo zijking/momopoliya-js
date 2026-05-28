@@ -6,6 +6,7 @@ import playerActions from "./playerActions.js";
 import { logAction } from "./utils.js";
 import { handleCardDraw } from "./cardEvents.js";
 import { emojiSet } from "./emojiSet.js";
+import { playDiceRollAnimation } from "./diceAnimation.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -52,7 +53,6 @@ const players = [
 ];
 
 let currentPlayerIndex = 0;
-
 
 // отримання поточного гравця
 function getCurrentPlayer() {
@@ -141,16 +141,15 @@ const createToken = (player, idx) => {
 
 // Функція для відображення інформації про гравця
 function infoPlayer(player) {
-  document.getElementById(
-    "infoText"
-  ).textContent = `Хід: ${player.emoji} ${player.name}  —  натисни «Передати хід», коли завершиш дії`;
+  document.getElementById("infoText").textContent =
+    `Хід: ${player.emoji} ${player.name}  —  натисни «Передати хід», коли завершиш дії`;
 }
 
 // Функція для обробки ходу гравця
-function handleTurn(roll = 0) {
+async function handleTurn(roll = 0) {
   endTurnBtn.disabled = true; // Блокуємо кнопку "Кінець ходу"
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
-  infoPlayer(player); // Відображаємо інформацію про гравця  
+  infoPlayer(player); // Відображаємо інформацію про гравця
 
   // 🧱 Перевірка в'язниці
   if (player.inJail) {
@@ -161,23 +160,15 @@ function handleTurn(roll = 0) {
     }
     // Якщо вийшов — продовжуємо далі як звичайний хід
     logAction(
-      `${player.emoji} ${player.name} вийшов з в'язниці і продовжує гру 🎉`
+      `${player.emoji} ${player.name} вийшов з в'язниці і продовжує гру 🎉`,
     );
-  }  
-  const { die1, die2, sum, isDouble } = rollDice(); // Кидаємо кубики
-  //-----
-
-  //Блок для тестування кидка кубика
-  // const die1 = 1;
-  // const die2 = 1; // Для тестування, встановлюємо фіксовані значення кубиків
-  // const isDouble = die1 === die2; // Перевіряємо, чи це
-  // const sum = die1 + die2; // Сума кидка кубика
-  //-----------------
+  }
+  const { die1, die2, sum, isDouble } = await rollDice(); // Кидаємо кубики
 
   logAction(
     `${player.emoji} ${player.name} кинув 🎲 ${die1} i ${die2} ${
       isDouble ? "(Дубль)" : ""
-    }`
+    }`,
   );
 
   roll = sum; // Використовуємо суму кидка кубика
@@ -189,7 +180,7 @@ function handleTurn(roll = 0) {
   logAction(
     `${player.emoji}  кинув суму кубиків 🎲: <b>${roll}</b> (з ${
       getPlot(player.position).name
-    } на ${getPlot(newPosition).name})`
+    } на ${getPlot(newPosition).name})`,
   ); // лог дії кидка кубика
 
   if (isDouble) {
@@ -198,7 +189,7 @@ function handleTurn(roll = 0) {
       player.position = jailPosition; // тюрма
       player.inJail = true;
       logAction(
-        `${player.emoji} ${player.name} кинув дубль 3 рази підряд і потрапляє у в'язницю ${emojiSet.jail.alarm}`
+        `${player.emoji} ${player.name} кинув дубль 3 рази підряд і потрапляє у в'язницю ${emojiSet.jail.alarm}`,
       );
       updatePlayer();
       updateUI();
@@ -218,7 +209,7 @@ function handleTurn(roll = 0) {
 
   showModal(
     `${player.emoji} ${player.name} кинув 🎲 <b>${die1} i ${die2}</b><br>Переходить на: <strong>${plotName}</strong>`,
-    () => hundelByPlotOrPayrent(plot, player, roll, isDouble)
+    () => hundelByPlotOrPayrent(plot, player, roll, isDouble),
   );
 
   console.log("Current player: ", player);
@@ -242,12 +233,26 @@ const getroll = () => {
 
 // Функція для кидка двох кубиків
 // Повертає об'єкт з результатами кидка
-const rollDice = () => {
+const rollDice = async () => {
+  // 1. Генеруємо результат (або беремо тестовий)
   const die1 = Math.floor(Math.random() * 6) + 1;
   const die2 = Math.floor(Math.random() * 6) + 1;
-  // return { die1, die2, sum: die1 + die2, isDouble: die1 === die2 };
 
-  return { die1: 3, die2: 4, sum: 7, isDouble: false }; //for TEST
+  //const die1 = 3; // для ТЕСТУ
+  //const die2 = 4; // для ТЕСТУ
+
+  const result = {
+    die1,
+    die2,
+    sum: die1 + die2,
+    isDouble: die1 === die2,
+  };
+
+  // 2. Чекаємо, поки Kaboom відіграє анімацію у overlay-вікні
+  await playDiceRollAnimation(result.die1, result.die2);
+
+  // 3. Повертаємо результат далі в логіку гри після завершення анімації
+  return result;
 };
 
 // Функція для отримання назви поля за позицією
