@@ -388,3 +388,8 @@ body {
     display: none;
     pointer-events: none;
 }
+#loading {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}

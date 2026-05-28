@@ -37,18 +37,22 @@ export function playDiceRollAnimation(target1, target2) {
 
     // 3. Функція створення кубика
     function createDie(x, y, finalValue) {
+      // Додаємо випадковий зсув до початкової позиції, щоб вони не спавнилися в одній точці
+      const offsetX = k.rand(-20, 20);
+      const offsetY = k.rand(-20, 20);
+
       const die = k.add([
         k.rect(60, 60, { radius: 8 }),
         k.pos(x, y),
         k.color(255, 255, 255),
         k.outline(4, k.rgb(252, 248, 8)),
-        k.area(),             // 1. ДОДАНО: реєструємо хитбокс для зіткнень
+        k.area(), // 1. ДОДАНО: реєструємо хитбокс для зіткнень
         k.anchor("center"),
         k.rotate(k.rand(0, 360)),
-        "die",                // 2. ДОДАНО: тег для відстеження колізій між кубиками
+        "die", // 2. ДОДАНО: тег для відстеження колізій між кубиками
         {
-          velX: k.rand(-250, 250),
-          velY: k.rand(-150, -350),
+          velX: k.rand(-300, 300),
+          velY: k.rand(-300, -300),
           rotSpeed: k.rand(400, 800),
           gravity: 1000,
           isSettled: false,
@@ -62,43 +66,43 @@ export function playDiceRollAnimation(target1, target2) {
         k.anchor("center"),
       ]);
 
-        die.onUpdate(() => {
-            if (die.isSettled) return;
+      die.onUpdate(() => {
+        if (die.isSettled) return;
 
-            die.velY += die.gravity * k.dt();
-            die.pos.x += die.velX * k.dt();
-            die.pos.y += die.velY * k.dt();
-            die.angle += die.rotSpeed * k.dt();
+        die.velY += die.gravity * k.dt();
+        die.pos.x += die.velX * k.dt();
+        die.pos.y += die.velY * k.dt();
+        die.angle += die.rotSpeed * k.dt();
 
-            if (k.chance(0.15)) {
-                textLabel.text = k.randi(1, 7).toString();
-            }
+        if (k.chance(0.15)) {
+          textLabel.text = k.randi(1, 7).toString();
+        }
 
-            if (die.pos.y > 230) {
-                die.pos.y = 230;
-                die.velY = -die.velY * 0.55;
-                die.velX *= 0.75;
-                die.rotSpeed *= 0.6;
+        if (die.pos.y > 230) {
+          die.pos.y = 230;
+          die.velY = -die.velY * 0.55;
+          die.velX *= 0.75;
+          die.rotSpeed *= 0.6;
 
-                if (Math.abs(die.velY) < 40 && Math.abs(die.velX) < 40) {
-                    die.isSettled = true;
-                    die.angle = 0;
-                    textLabel.text = die.finalVal.toString();
-            
-                    // Захист на випадок, якщо один кубик застиг, а другий його штовхнув:
-                    // зсуваємо трохи вбік за необхідності, щоб вони візуально не перекривались
-                }
-            }
+          if (Math.abs(die.velY) < 40 && Math.abs(die.velX) < 40) {
+            die.isSettled = true;
+            die.angle = 0;
+            textLabel.text = die.finalVal.toString();
 
-            if (die.pos.x < 40) {
-                die.pos.x = 40;
-                die.velX = -die.velX;
-            }
-            if (die.pos.x > 360) {
-                die.pos.x = 360;
-                die.velX = -die.velX;
-            }
-        });
+            // Захист на випадок, якщо один кубик застиг, а другий його штовхнув:
+            // зсуваємо трохи вбік за необхідності, щоб вони візуально не перекривались
+          }
+        }
+
+        if (die.pos.x < 40) {
+          die.pos.x = 40;
+          die.velX = -die.velX;
+        }
+        if (die.pos.x > 360) {
+          die.pos.x = 360;
+          die.velX = -die.velX;
+        }
+      });
     }
 
     // 3. ДОДАНО: Обробка зіткнення кубиків між собою
@@ -130,7 +134,7 @@ export function playDiceRollAnimation(target1, target2) {
 
     // Запускаємо кубики (змінив початковий X, щоб вони летіли назустріч один одному)
     createDie(100, 150, target1);
-    createDie(300, 150, target2);
+    createDie(150, 150, target2);
 
     // 4. Замість повного знищення рушія, просто ховаємо інтерфейс
     k.wait(2.2, () => {
