@@ -3,7 +3,7 @@ import map from "./map.js";
 import { showModal, showModalWithChoices } from "./modal.js";
 import actionPlayer from "./playerActions.js";
 import playerActions from "./playerActions.js";
-import { logAction } from "./utils.js";
+import { logAction, activPlayerColor } from "./utils.js";
 import { handleCardDraw } from "./cardEvents.js";
 import { emojiSet } from "./emojiSet.js";
 import { playDiceRollAnimation } from "./diceAnimation.js";
@@ -20,8 +20,7 @@ endTurnBtn.addEventListener("click", endTurn);
 
 // Функція для завершення ходу гравця
 function endTurn() {
-  // 🔒 блокуємо кнопку, щоб не клікнули двічі
-  endTurnBtn.disabled = true;
+  endTurnBtn.disabled = true; // 🔒 блокуємо кнопку, щоб не клікнули двічі
   const currentPlayer = getCurrentPlayer(); // отримуємо поточного гравця
   currentPlayer.doublesCount = 0; // скидаємо лічильник дублів
   logAction(`${currentPlayer.emoji} ${currentPlayer.name} завершує хід ⏭️`);
@@ -29,28 +28,37 @@ function endTurn() {
   nextTurn(); // 👉 передаємо хід
   const nextPlayer = getCurrentPlayer(); // отримуємо наступного гравця
   infoPlayer(nextPlayer); // оновлюємо інформацію про наступного гравця
+  activPlayerColor(getCurrentPlayer().color); // встановлюємо колір для поточного гравця
 }
 
 const jailPosition = 10; // Позиція в'язниці
 
+const COUNT_PLAYERS = 3; // Кількість гравців у грі
+
 const randomPlayers = [
-  { name: "Астронавт", emoji: "👨‍🚀" },
-  { name: "Інопланетянин", emoji: "👽" },
-  { name: "Робот", emoji: "🤖" },
-  { name: "Зоряний Капітан", emoji: "🧑‍✈️" },
-  { name: "Космічний Пес", emoji: "🐕‍🦺" },
-  { name: "Марсіянин", emoji: "🛸" },
-  { name: "Галактичний Кіт", emoji: "🐱" },
-  { name: "Супутник", emoji: "🛰️" },
+  { name: "Астронавт", emoji: "👨‍🚀", color: "green" },
+  { name: "Інопланетянин", emoji: "👽", color: "yellow" },
+  { name: "Робот", emoji: "🤖", color: "red" },
+  { name: "Зоряний Капітан", emoji: "🧑‍✈️", color: "blue" },
+  { name: "Космічний Пес", emoji: "🐕‍🦺", color: "purple" },
+  { name: "Марсіянин", emoji: "🛸", color: "orange" },
+  { name: "Галактичний Кіт", emoji: "🐱", color: "pink" },
+  { name: "Супутник", emoji: "🛰️", color: "teal" },
 ];
 
 // Ініціалізація гравців
-const players = [
-  new Player("Гравець 1", "🚗"),
-  new Player("Гравець 2", "✈️"),
-  new Player("Гравець 3", "🎈"),
-  new Player("Гравець 4", "🚢"),
-];
+function initializePlayers(count = 4) {
+  if (count > 8 || count < 1) {
+    alert("Invalid number of players. Please choose between 1 and 8.");
+    return [];
+  }
+
+  return randomPlayers.slice(0, count).map((playerData) => {
+    return new Player(playerData.name, playerData.emoji, playerData.color);
+  });
+}
+
+const players = initializePlayers(COUNT_PLAYERS);
 
 let currentPlayerIndex = 0;
 
@@ -94,8 +102,11 @@ function updateUI() {
       propBlock.textContent = "немає власності";
     }
 
+    console.log("getCurrentPlayer: ", getCurrentPlayer());
+
     wrapper.appendChild(propBlock);
     status.appendChild(wrapper);
+    activPlayerColor(getCurrentPlayer().color); // встановлюємо колір для поточного гравця
   });
 }
 
@@ -148,6 +159,8 @@ function infoPlayer(player) {
 // Функція для обробки ходу гравця
 async function handleTurn(roll = 0) {
   endTurnBtn.disabled = true; // Блокуємо кнопку "Кінець ходу"
+  disableRollButton(); // Блокуємо кнопку "Кидок кубика" до завершення логіки ходу
+
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
   infoPlayer(player); // Відображаємо інформацію про гравця
 
@@ -280,7 +293,7 @@ const highlightOwnedProperties = () => {
   players.forEach((player, idx) => {
     player.properties.forEach((prop) => {
       const cell = document.querySelector(
-        `.cell[data-index='${prop.position}']`
+        `.cell[data-index='${prop.position}']`,
       );
       if (cell) {
         cell.classList.add(`owned-by-${idx}`);
@@ -310,7 +323,7 @@ const showModalForByPlot = (player, plot, onComplete) => {
           actionPlayer.buyPlot(player, plot);
           highlightOwnedProperties();
           logAction(
-            `${player.emoji} ${player.name} купив ${plot.name} за $${plot.cost}`
+            `${player.emoji} ${player.name} купив ${plot.name} за $${plot.cost}`,
           );
           updateUI();
           onComplete(); // ⬅️ завершуємо хід
@@ -331,7 +344,7 @@ const showModalForByPlot = (player, plot, onComplete) => {
       label: "❌ Відмовитись",
       onClick: () => {
         logAction(
-          `${player.emoji} ${player.name} відмовився купувати ${plot.name}`
+          `${player.emoji} ${player.name} відмовився купувати ${plot.name}`,
         );
         updateUI();
         onComplete(); // ⬅️ завершуємо хід
@@ -345,7 +358,7 @@ const startPosition = () => {
   const player = getCurrentPlayer();
   logAction(
     "Гравці розташовуються на стартову позицію." +
-      `<br>Гру починає ${player.emoji} ${player.name}`
+      `<br>Гру починає ${player.emoji} ${player.name}`,
   ); // лог дії
   // Ініціалізуємо гравців на стартовій позиції
   const startCell = document.querySelector(`.cell[data-index='${0}']`);
@@ -402,7 +415,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
       player.updateBalance(sum);
       plot.cost = 0;
       logAction(
-        `${player.emoji} ${player.name} отримує $${sum} винагороди з паркінгу`
+        `${player.emoji} ${player.name} отримує $${sum} винагороди з паркінгу`,
       );
     } else {
       logAction(`${player.emoji} ${player.name} потрапив на порожній Паркінг`);
@@ -418,7 +431,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
       logAction(
         `${player.emoji} ${player.name} сплачує податок ${
           plot.name
-        } у розмірі $${Math.abs(plot.cost || 0)}`
+        } у розмірі $${Math.abs(plot.cost || 0)}`,
       );
     } else {
       alert(`${player.name} не зміг сплатити податок — недостатньо коштів!`);
@@ -439,7 +452,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
       () => finishTurn(player, isDouble),
       plot,
       isDouble,
-      players
+      players,
     );
     // handleCardDraw(plot.type, player);
     return;
@@ -453,7 +466,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     player.doublesCount = 0;
 
     logAction(
-      `${player.emoji} ${player.name} потрапляє на ⚖️ Суд і відправляється у 🧱 В'язницю`
+      `${player.emoji} ${player.name} потрапляє на ⚖️ Суд і відправляється у 🧱 В'язницю`,
     );
     updatePlayer();
     updateUI();
@@ -465,7 +478,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
     const success = actionPlayer.payRentToOwner(player, plot, players);
     if (!success) {
       alert(
-        `${player.name} не зміг сплатити оренду — недостатньо коштів![465]`
+        `${player.name} не зміг сплатити оренду — недостатньо коштів![465]`,
       );
     }
     updateUI();
@@ -474,7 +487,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
 
   // Якщо поле не обробилось
   console.log(
-    `row: [411]${player.name} не зміг обробити дію — невідоме поле [else 003]`
+    `row: [411]${player.name} не зміг обробити дію — невідоме поле [else 003]`,
   );
   return finishTurn(player, isDouble);
 };

@@ -6,8 +6,11 @@ const logAction = (text) => {
   log.appendChild(p);
   log.scrollTop = log.scrollHeight; // автоматичне прокручування вниз
 }
-  
-export  {
-  logAction
+
+const activPlayerColor = (color) => {
+  const border = document.getElementById("containerNav");
+  border.style.border = `10px solid ${color}`;
 };
+
+export { logAction, activPlayerColor };
   

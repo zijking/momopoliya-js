@@ -1,5 +1,5 @@
 class Player {
-  constructor(name, emoji = "🐭") {
+  constructor(name, emoji = "🐭", color = "") {
     this.id = Date.now() + Math.floor(Math.random() * 1000); // Унікальний ID
     this.name = name;
     this.emoji = emoji;
@@ -9,7 +9,8 @@ class Player {
     this.inJail = false;
     this.jailTurns = 0;
     this.jailFree = 0; // Кількість карток "Вийти з в'язниці безкоштовно"
-    this.doublesCount = 0; 
+    this.doublesCount = 0;
+    this.color = color; // Колір гравця для UI
   }
 
   move(steps) {
