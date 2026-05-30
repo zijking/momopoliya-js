@@ -9,14 +9,30 @@ export function playDiceRollAnimation(target1, target2) {
     if (!overlay) {
       overlay = document.createElement("div");
       overlay.id = "dice-overlay";
-      overlay.style =
-        "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 300px; z-index: 9999; pointer-events: none;";
+      overlay.style = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
+        width: 400px; 
+        height: 300px; 
+        z-index: 9999; 
+        pointer-events: none;
+        opacity: 0; 
+        transition: opacity 0.3s ease;
+      `;
       overlay.innerHTML =
         '<canvas id="kaboom-dice-canvas" style="width:100%; height:100%;"></canvas>';
       document.body.appendChild(overlay);
     }
 
     overlay.style.display = "block";
+
+    // Мікропауза, щоб браузер застосував плавну появу (fade-in)
+    setTimeout(() => {
+      overlay.style.opacity = "1";
+    }, 10);
+
     const canvas = document.getElementById("kaboom-dice-canvas");
 
     // 2. Ініціалізуємо Kaboom ОДИН раз за весь час роботи програми
@@ -36,7 +52,13 @@ export function playDiceRollAnimation(target1, target2) {
     k.destroyAll();
 
     // 3. Функція створення кубика
-    function createDie(x, y, finalValue) {
+    function createDie(
+      x,
+      y,
+      finalValue,
+      colorBg = [255, 255, 255],
+      colorBr = [0, 0, 0],
+    ) {
       // Додаємо випадковий зсув до початкової позиції, щоб вони не спавнилися в одній точці
       const offsetX = k.rand(-20, 20);
       const offsetY = k.rand(-20, 20);
@@ -44,8 +66,8 @@ export function playDiceRollAnimation(target1, target2) {
       const die = k.add([
         k.rect(60, 60, { radius: 8 }),
         k.pos(x, y),
-        k.color(255, 255, 255),
-        k.outline(4, k.rgb(252, 248, 8)),
+        k.color(...colorBg),
+        k.outline(4, k.rgb(...colorBr)),
         k.area(), // 1. ДОДАНО: реєструємо хитбокс для зіткнень
         k.anchor("center"),
         k.rotate(k.rand(0, 360)),
@@ -133,8 +155,14 @@ export function playDiceRollAnimation(target1, target2) {
     });
 
     // Запускаємо кубики (змінив початковий X, щоб вони летіли назустріч один одному)
-    createDie(100, 150, target1);
-    createDie(150, 150, target2);
+    const colorBg1 = [255, 255, 255]; //  фон для першого кубика
+    const colorBr1 = [0, 0, 0]; //  рамка для першого кубика
+
+    const colorBg2 = [255, 255, 255]; //  фон для другого кубика
+    const colorBr2 = [0, 0, 0]; //  рамка для другого кубика
+
+    createDie(100, 150, target1, colorBg1, colorBr1);
+    createDie(150, 150, target2, colorBg2, colorBr2);
 
     // 4. Замість повного знищення рушія, просто ховаємо інтерфейс
     k.wait(2.2, () => {

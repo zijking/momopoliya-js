@@ -231,6 +231,7 @@ body {
     width: 500px;
 }
 
+
 .conteinerNav p {
     margin: 0px 0px 0px 10px;
 }
@@ -266,10 +267,17 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    opacity: 1;
+        pointer-events: all;
+        /* Плавність для прозорості фонду */
+        transition: opacity 0.5s ease;
 }
 
 .modal.hidden {
     display: none;
+        opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
 }
 
 .modal-content {
@@ -278,6 +286,23 @@ body {
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+/* Початковий стан: трохи зменшене */
+    transform: scale(0.85);
+
+    /* Плавність для масштабування */
+    transition: transform 0.3s ease;
+}
+
+/* Клас, який вмикає видимість (додаватимемо через JS) */
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    /* Повертаємо клікабельність */
+}
+
+/* Коли модалка активна, вікно збільшується до нормального розміру */
+.modal-overlay.active .modal-content {
+    transform: scale(1);
 }
 
 #modal-ok {
@@ -381,17 +406,26 @@ body {
 /* Moved inline styles from #dice-overlay to here to avoid inline styling */
 #dice-overlay {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    height: 300px;
-    z-index: 999;
-    display: none;
-    pointer-events: none;
+            top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 400px;
+                height: 300px;
+            z-index: 9999;
+                pointer-events: none;
+        opacity: 0;
+            transition: opacity 0.3s ease;
 }
 #loading {
     font-size: 16px;
     font-weight: bold;
     color: #333;
+}
+#containerNav {
+    /* Твої поточні стилі (width, height, margin тощо) */
+    border: 10px solid transparent;
+    /* Початковий колір, наприклад, прозорий */
+
+    /* Додаємо плавність для бордера: 0.7 секунди, ефект плавного старту/фінішу */
+    transition: border-color 0.7s ease;
 }
