@@ -3,8 +3,8 @@ import { playerMain } from "./playerMove.js";
 
 
 // Функція обробника кліку на кнопку відкриття ринкової модалки
-export function onTradeButtonClick(player, players) {
-  console.log("Відкриваємо ринкову модалку для гравця:", player); // Виводимо в консоль ім'я гравця, для якого відкривається модалка
+export function onTradeButtonClick(players) {
+  console.log("Відкриваємо ринкову модалку для гравця:", playerMain.getCurrentPlayer()); // Виводимо в консоль ім'я гравця, для якого відкривається модалка
 
   const currentPlayerNameElem = document.getElementById("trade-player"); // Елемент для відображення імені поточного гравця в заголовку модалки
 
@@ -102,6 +102,7 @@ function setPlayerProperties() {
   }
 }
 
+// Функція для створення елемента списку з властивістю гравця (чекбокс + назва + колір)
 const createPlayerPropertyItem = (player, property) => {
   const propertyItem = document.createElement("div");
   propertyItem.className = "trade-property-item";
