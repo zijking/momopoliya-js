@@ -1,8 +1,8 @@
 /* Основний стиль ринкової кнопки */
 #open-trade-btn {
-    position: fixed;
-    bottom: 100px;
-    right: 120px;
+    position: absolute;
+        bottom: 85px;
+        right: 85px;
     z-index: 1000;
 }
 
@@ -50,4 +50,74 @@
 /* Легке погойдування іконки при наведенні на кнопку */
 .trade-mode-btn:hover .market-svg-icon {
     transform: scale(1.1);
+}
+/* Контейнер для списку чекбоксів */
+#my-properties-list,
+#opponent-properties-list {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fbfbfb;
+}
+
+/* Кожен рядок нерухомості */
+.trade-property-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 4px;
+    transition: background 0.2s;
+}
+
+.trade-property-item:hover {
+    background: #f0f0f0;
+}
+
+/* Приховуємо дефолтний чекбокс або робимо його акуратним */
+.trade-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.trade-property-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Кольоровий маркер групи (вулиці) */
+.trade-color-badge {
+    display: inline-block;
+    width: 24px;
+    height: 14px;
+    border: 1px solid #555;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.trade-property-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.trade-empty-msg {
+    font-size: 13px;
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 15px 0;
+}
+
+trade-property-price {
+    font-size: 12px;
+    color: #555;
+    margin-left: auto;
 }

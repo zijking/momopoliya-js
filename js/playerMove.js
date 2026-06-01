@@ -7,7 +7,7 @@ import { logAction, activPlayerColor } from "./utils.js";
 import { handleCardDraw } from "./cardEvents.js";
 import { emojiSet } from "./emojiSet.js";
 import { playDiceRollAnimation } from "./diceAnimation.js";
-import { tradeUI } from "./tradeUI.js";
+//import { tradeUI } from "./tradeUI.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -31,7 +31,7 @@ function endTurn() {
   const nextPlayer = getCurrentPlayer(); // отримуємо наступного гравця
   infoPlayer(nextPlayer); // оновлюємо інформацію про наступного гравця
   activPlayerColor(getCurrentPlayer().color); // встановлюємо колір для поточного гравця
-  tradeUI(nextPlayer, players); // Ініціалізуємо торговий інтерфейс для наступного гравця після передачі ходу
+  //tradeUI(nextPlayer, players); // Ініціалізуємо торговий інтерфейс для наступного гравця після передачі ходу
 }
 
 const JAIL_POSITION = 10; // Позиція в'язниці
@@ -66,8 +66,22 @@ const players = initializePlayers(COUNT_PLAYERS);
 let currentPlayerIndex = 0;
 
 // отримання поточного гравця
-function getCurrentPlayer() {
+export function getCurrentPlayer() {
   return players[currentPlayerIndex];
+}
+
+export function getAllPlayers() { 
+  return players;
+}
+
+
+
+//Знайти гравця за id
+function getPlayerById(id) {
+  // Перетворюємо вхідний id на число
+  const numericId = Number(id);
+
+  return players.find((p) => p.id === numericId);
 }
 
 // Функція для переходу до наступного ходу
@@ -92,7 +106,7 @@ function updateUI() {
               <span class="balance">💰 ${p.balance}</span>
           </div>
       `;
-
+    wrapper.style = `border-bottom: 2px solid ${p.color};`;
     // Додатковий блок з власністю (при наведенні)
     const propBlock = document.createElement("div");
     propBlock.className = "player-properties";
@@ -166,7 +180,7 @@ async function handleTurn(roll = 0) {
 
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
 
-  tradeUI(player, players); // Ініціалізуємо торговий інтерфейс після побудови карти
+  //tradeUI(player, players); // Ініціалізуємо торговий інтерфейс після побудови карти
 
   infoPlayer(player); // Відображаємо інформацію про гравця
 
@@ -214,6 +228,7 @@ async function handleTurn(roll = 0) {
       updatePlayer();
       updateUI();
       nextTurn();
+      endTurn(); // автоматично завершуємо хід після відправки в тюрму
       return;
     }
   } else {
@@ -766,5 +781,8 @@ export const playerMain = {
   hundelByPlotOrPayrent,
   highlightOwnedProperties,
   getPlot,
+  getCurrentPlayer,
+  getPlayerById,
+  getAllPlayers,
   getCurrentPlayer,
 };
