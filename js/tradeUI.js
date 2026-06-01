@@ -1,5 +1,21 @@
 import { playerMain } from "./playerMove.js";
 
+// Імпортуємо функції для роботи з інтерфейсом торгівлі
+export function tradeUI(players) {
+  const tradeBtn = document.getElementById("open-trade-btn"); // 🔹 Кнопка для відкриття ринкової модалки
+  const selectElement = document.getElementById("trade-target-player-select"); // Селект для вибору гравця, з яким хочемо торгувати
+  initTradeModal(); // Ініціалізуємо модалку при завантаженні сторінки
+
+  if (tradeBtn) {
+    tradeBtn.addEventListener("click", () =>
+      onTradeButtonClick(players),
+    ); // Додаємо обробник кліку для відкриття ринкової модалки
+  }
+
+  selectElement.addEventListener("change", (event) =>
+    selectOponentForTrade(event),
+  ); // Додаємо обробник зміни селекту для вибору гравця, з яким хочемо торгувати
+}
 
 
 // Функція обробника кліку на кнопку відкриття ринкової модалки
