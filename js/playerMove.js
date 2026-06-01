@@ -7,6 +7,7 @@ import { logAction, activPlayerColor } from "./utils.js";
 import { handleCardDraw } from "./cardEvents.js";
 import { emojiSet } from "./emojiSet.js";
 import { playDiceRollAnimation } from "./diceAnimation.js";
+import { tradeUI } from "./tradeUI.js";
 
 //прив'язка до елементів DOM кидок кубика
 document.getElementById("roll").addEventListener("click", () => {
@@ -26,12 +27,14 @@ function endTurn() {
   logAction(`${currentPlayer.emoji} ${currentPlayer.name} завершує хід ⏭️`);
   enableRollButton(); // розблоковуємо кнопку кидка кубика
   nextTurn(); // 👉 передаємо хід
+
   const nextPlayer = getCurrentPlayer(); // отримуємо наступного гравця
   infoPlayer(nextPlayer); // оновлюємо інформацію про наступного гравця
   activPlayerColor(getCurrentPlayer().color); // встановлюємо колір для поточного гравця
+  tradeUI(nextPlayer, players); // Ініціалізуємо торговий інтерфейс для наступного гравця після передачі ходу
 }
 
-const jailPosition = 10; // Позиція в'язниці
+const JAIL_POSITION = 10; // Позиція в'язниці
 
 const COUNT_PLAYERS = 3; // Кількість гравців у грі
 
@@ -102,7 +105,7 @@ function updateUI() {
       propBlock.textContent = "немає власності";
     }
 
-    console.log("getCurrentPlayer: ", getCurrentPlayer());
+    //console.log("getCurrentPlayer: ", getCurrentPlayer());
 
     wrapper.appendChild(propBlock);
     status.appendChild(wrapper);
@@ -162,11 +165,14 @@ async function handleTurn(roll = 0) {
   disableRollButton(); // Блокуємо кнопку "Кидок кубика" до завершення логіки ходу
 
   const player = getCurrentPlayer(); // Отримуємо поточного гравця
+
+  tradeUI(player, players); // Ініціалізуємо торговий інтерфейс після побудови карти
+
   infoPlayer(player); // Відображаємо інформацію про гравця
 
   // 🧱 Перевірка в'язниці
   if (player.inJail) {
-    const result = handleJail(player);
+    const result = await handleJail(player);
     if (!result.freed) {
       // nextTurn();
       return; // не виходить — просто передає хід
@@ -176,6 +182,7 @@ async function handleTurn(roll = 0) {
       `${player.emoji} ${player.name} вийшов з в'язниці і продовжує гру 🎉`,
     );
   }
+
   const { die1, die2, sum, isDouble } = await rollDice(); // Кидаємо кубики
 
   logAction(
@@ -199,7 +206,7 @@ async function handleTurn(roll = 0) {
   if (isDouble) {
     player.doublesCount = (player.doublesCount || 0) + 1;
     if (player.doublesCount === 3) {
-      player.position = jailPosition; // тюрма
+      player.position = JAIL_POSITION; // тюрма
       player.inJail = true;
       logAction(
         `${player.emoji} ${player.name} кинув дубль 3 рази підряд і потрапляє у в'язницю ${emojiSet.jail.alarm}`,
@@ -213,7 +220,8 @@ async function handleTurn(roll = 0) {
     player.doublesCount = 0; // скинути лічильник, якщо не дубль
   }
 
-  playerActions.salaryCheck(player, roll); // Перевіряємо зарплату гравця
+  actionPlayer.salaryCheck(player, roll); // Перевіряємо зарплату гравця
+  actionPlayer.initBuildingClicks(); // Ініціалізуємо кліки для будівництва
 
   player.move(roll); // Переміщуємо гравця на нову позицію
 
@@ -251,8 +259,8 @@ const rollDice = async () => {
   const die1 = Math.floor(Math.random() * 6) + 1;
   const die2 = Math.floor(Math.random() * 6) + 1;
 
-  //const die1 = 3; // для ТЕСТУ
-  //const die2 = 4; // для ТЕСТУ
+  // const die1 = 3; // для ТЕСТУ
+  // const die2 = 4; // для ТЕСТУ
 
   const result = {
     die1,
@@ -309,6 +317,40 @@ const highlightOwnedProperties = () => {
       cell.classList.add("mortgaged"); // 🔘 якщо заставлено — сірий фон поверх
     } else {
       cell.classList.remove("mortgaged");
+    }
+  });
+};
+
+// Функція для відмальовування будинків та готелів на полі
+const updateBoardBuildings = (allPlots) => {
+  allPlots.forEach((plot) => {
+    const cell = document.querySelector(`.cell[data-index='${plot.position}']`);
+    if (!cell) return;
+
+    // Шукаємо або створюємо контейнер для будівель всередині клітинки
+    let buildingContainer = cell.querySelector(".building-container");
+    if (!buildingContainer) {
+      buildingContainer = document.createElement("div");
+      buildingContainer.className = "building-container";
+
+      // Стилі можна винести в CSS: absolute, top: 2px, left: 50%, flex, etc.
+      buildingContainer.style.position = "absolute";
+      buildingContainer.style.top = "2px";
+      buildingContainer.style.width = "100%";
+      buildingContainer.style.textAlign = "center";
+      buildingContainer.style.fontSize = "12px";
+      cell.appendChild(buildingContainer);
+    }
+
+    // Очищаємо попередні будови
+    buildingContainer.innerHTML = "";
+
+    // Малюємо готель або будинки
+    if (plot.hasHotel) {
+      buildingContainer.innerHTML = "🏨";
+    } else if (plot.houses > 0) {
+      // Повторюємо емоджі будинку потрібну кількість разів
+      buildingContainer.innerHTML = "🏠".repeat(plot.houses);
     }
   });
 };
@@ -460,7 +502,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
 
   /* ⚖️  Поле «Суд» — одразу у в'язницю */
   if (plot.type === "court") {
-    player.position = jailPosition; // позиція клітинки «В'язниця»
+    player.position = JAIL_POSITION; // позиція клітинки «В'язниця»
     player.inJail = true;
     player.jailTurns = 0;
     player.doublesCount = 0;
@@ -487,7 +529,7 @@ const hundelByPlotOrPayrent = (plot, player, roll, isDouble) => {
 
   // Якщо поле не обробилось
   console.log(
-    `row: [411]${player.name} не зміг обробити дію — невідоме поле [else 003]`,
+    `row: [492]${player.name} не зміг обробити дію — невідоме поле [else 003]`,
   );
   return finishTurn(player, isDouble);
 };
@@ -517,7 +559,7 @@ const chekTax = (plot, player) => {
       return true; // Повертаємо true, якщо податок сплачено
     } else {
       alert(
-        `${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`
+        `${player.name} не може сплатити податок у $${taxAmount} — недостатньо коштів!`,
       );
       logAction(`${player.name} не зміг сплатити податок ${plot.name}`);
       return false; // Повертаємо false, якщо податок не сплачено
@@ -541,7 +583,7 @@ const updateParkingDisplay = () => {
   if (!parking) return;
 
   const cell = document.querySelector(
-    `.cell[data-index="${parking.position}"]`
+    `.cell[data-index="${parking.position}"]`,
   );
   const display = cell?.querySelector(".parking-amount");
   if (display) {
@@ -550,7 +592,7 @@ const updateParkingDisplay = () => {
 };
 
 // Функція для показу модального вікна з карткою "Вийти з в'язниці безкоштовно"
-const showModalJailFree = (player) =>   {
+const showModalJailFree = (player) => {
   showModalWithChoices(
     "🧾 Ви маєте картку «Вийти з в'язниці безкоштовно». Використати її?",
     [
@@ -562,7 +604,7 @@ const showModalJailFree = (player) =>   {
           player.jailTurns = 0;
           player.jailFree -= 1; // або видаляєш з масиву карток
           logAction(
-            `${player.emoji} ${player.name} використовує картку «Вийти з в'язниці»`
+            `${player.emoji} ${player.name} використовує картку «Вийти з в'язниці»`,
           );
           updatePlayer();
           updateUI();
@@ -573,57 +615,142 @@ const showModalJailFree = (player) =>   {
         label: "❌ Ні",
         onClick: () => {
           logAction(
-            `${player.emoji} ${player.name} вирішив залишитись у в'язниці ще на один хід`
+            `${player.emoji} ${player.name} вирішив залишитись у в'язниці ще на один хід`,
           );
-          return false; // якщо не хоче використовувати картку,      
+          return false; // якщо не хоче використовувати картку,
         },
       },
-    ]
+    ],
   );
-}
+};
+
+// Функція для показу модального вікна з карткою (Тепер вона повертає Promise!)
+const showModalJailFreeAsync = (player) => {
+  return new Promise((resolve) => {
+    showModalWithChoices(
+      "🧾 Ви маєте картку «Вийти з в'язниці безкоштовно». Використати її?",
+      [
+        {
+          label: "✅ Так, використати",
+          onClick: () => {
+            player.inJail = false;
+            player.jailTurns = 0;
+            player.jailFree -= 1;
+            logAction(
+              `${player.emoji} ${player.name} використовує картку «Вийти з в'язниці»`,
+            );
+            updatePlayer();
+            updateUI();
+            resolve(true); // Повертаємо true після кліку
+          },
+        },
+        {
+          label: "❌ Ні",
+          onClick: () => {
+            logAction(
+              `${player.emoji} ${player.name} вирішив залишитись у в'язниці ще на один хід`,
+            );
+            resolve(false); // Повертаємо false після кліку
+          },
+        },
+      ],
+    );
+  });
+};
 
 // Функція для обробки в'язниці
-function handleJail(player) {
+// function handleJail(player) {
+//   player.jailTurns++;
+
+//   if (player.jailFree > 0) {
+//     const res = showModalJailFree(player);
+//     if (res) {
+//       return { freed: true, sum: 0, isDouble: false }; // якщо вийшов з в'язниці
+//     }
+//   }
+
+//   logAction(
+//     `${player.emoji} ${player.name} у в'язниці (хід ${player.jailTurns} з 3)`
+//   );
+
+//   const { die1, die2, sum, isDouble } = rollDice();
+//   logAction(`${player.emoji} кидає кубики у в'язниці: 🎲 ${die1} і ${die2}`);
+
+//   if (isDouble) {
+//     logAction(
+//       `${player.emoji} ${player.name} викидає дубль і виходить з в'язниці!`
+//     );
+//     player.inJail = false;
+//     player.jailTurns = 0;
+//     player.move(sum);
+//     return { freed: true, roll: sum, isDouble: true };
+//   }
+
+//   if (player.jailTurns >= 3) {
+//     logAction(
+//       `${player.emoji} ${player.name} відсидів 3 ходи і виходить з в'язниці`
+//     );
+//     player.inJail = false;
+//     player.jailTurns = 0;
+//     player.updateBalance(-50); // штраф
+//     player.move(sum);
+//     return { freed: true, roll: sum, isDouble: false };
+//   }
+
+//   // ще сидить
+//   logAction(
+//     `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`
+//   );
+//   disableRollButton();
+//   enableEndTurn();
+//   return { freed: false };
+// }
+
+// Функція для обробки в'язниці (Тепер вона async!)
+async function handleJail(player) {
   player.jailTurns++;
 
-  if (player.jailFree > 0) {     
-    const res = showModalJailFree(player);    
-    if (res) {
-      return { freed: true, sum: 0, isDouble: false }; // якщо вийшов з в'язниці
+  // Перевірка наявності картки звільнення
+  if (player.jailFree > 0) {
+    // Чекаємо, поки гравець натисне кнопку в модалці
+    const usedCard = await showModalJailFreeAsync(player);
+    if (usedCard) {
+      return { freed: true }; // вийшов з в'язниці
     }
   }
 
   logAction(
-    `${player.emoji} ${player.name} у в'язниці (хід ${player.jailTurns} з 3)`
+    `${player.emoji} ${player.name} у в'язниці (хід ${player.jailTurns} з 3)`,
   );
 
-  const { die1, die2, sum, isDouble } = rollDice();
+  // Додали await, щоб дочекатися завершення анімації Kaboom!
+  const { die1, die2, sum, isDouble } = await rollDice();
   logAction(`${player.emoji} кидає кубики у в'язниці: 🎲 ${die1} і ${die2}`);
 
   if (isDouble) {
     logAction(
-      `${player.emoji} ${player.name} викидає дубль і виходить з в'язниці!`
+      `${player.emoji} ${player.name} викидає дубль і виходить з в'язниці!`,
     );
     player.inJail = false;
     player.jailTurns = 0;
     player.move(sum);
-    return { freed: true, roll: sum, isDouble: true };
+    return { freed: true };
   }
 
   if (player.jailTurns >= 3) {
     logAction(
-      `${player.emoji} ${player.name} відсидів 3 ходи і виходить з в'язниці`
+      `${player.emoji} ${player.name} відсидів 3 ходи і виходить з в'язниці`,
     );
     player.inJail = false;
     player.jailTurns = 0;
     player.updateBalance(-50); // штраф
     player.move(sum);
-    return { freed: true, roll: sum, isDouble: false };
+    return { freed: true };
   }
 
   // ще сидить
   logAction(
-    `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`
+    `${player.emoji} ${player.name} передає хід наступному гравцеві, залишаючись у в'язниці`,
   );
   disableRollButton();
   enableEndTurn();

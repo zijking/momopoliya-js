@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/tradeModal.css" />
+    <link rel="stylesheet" href="./css/tradeButton.css" />
     <link rel="icon" type="image/x-icon" href="./src/favico.ico">
 
     <title>2D MonopolyUA Game</title>
@@ -33,6 +35,66 @@
     </div>
     <div id="dice-overlay">
         <canvas id="kaboom-dice-canvas"></canvas>
+    </div>
+    <!-- Trade Mode Button -->
+    <button id="open-trade-btn" class="game-control-btn trade-mode-btn" title="Відкрити ринок торгівлі">
+        <svg class="market-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            <path d="M20 7H4V4h16v3z"></path>
+        </svg>
+        <span>Ринкова торгівля</span>
+    </button>
+    <!-- Trade Modal Overlay -->
+    <div id="trade-modal-overlay" class="trade-hidden">
+        <div class="trade-modal">
+            <div id="trade-header" class="trade-header">
+                <h2>🤝 Торгівля </h2>
+                <button id="trade-close-icon" class="trade-close-btn">&times;</button>
+            </div>
+    
+            <div class="trade-columns">
+                <!-- Ліва колонка (Поточний гравець) -->
+                <div class="trade-col">
+                    <h3 id="trade-current-player-name">Пропозиція <span id="trade-player">PLAYER</span></h3>
+                    <div class="trade-money-input">
+                        <label for="trade-offer-money">Гроші ($):</label>
+                        <input type="number" id="trade-offer-money" min="0" value="0" step="10">
+                    </div>
+                    <h4>Ваша нерухомість:</h4>
+                    <div class="trade-properties-list" id="trade-offer-properties">
+                        <!-- Сюди JS буде рендерити чекбокси з майною -->
+                        <p class="trade-empty-msg">Немає майна для обміну</p>
+                    </div>
+                </div>
+    
+                <!-- Права колонка (Опонент) -->
+                <div class="trade-col trade-col-right">
+                    <div class="trade-target-selector">
+                        <h3>Обмін з:</h3>
+                        <select id="trade-target-player-select" aria-label="Оберіть гравця">
+                            <option value="" disabled selected>Оберіть гравця...</option>
+                            <!-- Сюди JS додасть інших гравців -->
+                        </select>
+                    </div>
+                    <div class="trade-money-input">
+                        <label for="trade-request-money">Гроші ($):</label>
+                        <input type="number" id="trade-request-money" min="0" value="0" step="10">
+                    </div>
+                    <h4>Нерухомість опонента:</h4>
+                    <div class="trade-properties-list" id="trade-request-properties">
+                        <!-- Сюди JS буде рендерити чекбокси з майною опонента -->
+                        <p class="trade-empty-msg">Спочатку оберіть гравця</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="trade-actions">
+                <button id="trade-cancel-btn" class="trade-btn-cancel">Скасувати</button>
+                <button id="trade-confirm-btn" class="trade-btn-confirm" disabled>Запропонувати</button>
+            </div>
+        </div>
     </div>
     <script src="./js/index.js" type="module"></script>
     <script src="https://unpkg.com/kaboom@3000.1.17/dist/kaboom.js"></script>

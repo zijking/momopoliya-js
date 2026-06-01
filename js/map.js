@@ -1,5 +1,6 @@
 import playerActions from "./playerActions.js";
 
+
 const landPlots = []; // 🔹 Масив для полів з landPlots.json
 const companyPlots = []; // 🔹 Масив для полів з companyPlots.json
 const mainAreas = []; // Основні поля
@@ -27,6 +28,7 @@ const buildMap = () => {
     allPlots.push(...landPlots, ...companyPlots, ...mainAreas); // 🔹 Об'єднуємо всі масиви в один
 
     renderBoard();
+    
     // updatePlayer();
   });
   // 🔹 Функція для отримання координат клітинки на полі
@@ -58,7 +60,8 @@ const buildMap = () => {
     }
     /* ==== Визначаємо, на якій стороні дошки клітинка =============== */
     let side = ""; // Змінна для сторони клітинки
-    if (plot.position >= 0 && plot.position < 11) side = "bottom"; // нижній ряд
+    if (plot.position >= 0 && plot.position < 11)
+      side = "bottom"; // нижній ряд
     else if (plot.position >= 11 && plot.position < 21)
       side = "left"; // ліва колона
     else if (plot.position >= 21 && plot.position < 31)
@@ -102,10 +105,12 @@ const buildMap = () => {
     cell.onclick = () => {
       playerActions.mortgagePlotOrNot(plot);
     }; // 🔹 Додаємо обробник кліку для застави
-
+    
     board.appendChild(cell);
     // allPlots.push(plot); // 🔹 Додаємо клітинку до загального масиву
     cells.push(cell);
+
+    
   };
 
   // 🔹 Рендеримо всі клітинки на полі

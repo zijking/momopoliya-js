@@ -10,6 +10,11 @@ const logAction = (text) => {
 const activPlayerColor = (color) => {
   const border = document.getElementById("containerNav");
   border.style.border = `10px solid ${color}`;
+
+  const traideHeader = document.getElementById("trade-header");
+  if (traideHeader) {
+    traideHeader.style.backgroundColor = color;
+  }
 };
 
 export { logAction, activPlayerColor };

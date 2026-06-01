@@ -1,0 +1,53 @@
+/* Основний стиль ринкової кнопки */
+#open-trade-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 120px;
+    z-index: 1000;
+}
+
+.trade-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Відступ між іконкою та текстом */
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    /* Ринковий помаранчевий градієнт */
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(211, 84, 0, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+/* Ефект при наведенні курсору */
+.trade-mode-btn:hover {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(211, 84, 0, 0.35);
+}
+
+/* Ефект при натисканні */
+.trade-mode-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(211, 84, 0, 0.2);
+}
+
+/* Розмір та вирівнювання SVG-іконки всередині */
+.market-svg-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+/* Легке погойдування іконки при наведенні на кнопку */
+.trade-mode-btn:hover .market-svg-icon {
+    transform: scale(1.1);
+}
