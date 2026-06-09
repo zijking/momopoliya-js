@@ -124,6 +124,9 @@ function updateUI() {
     wrapper.appendChild(propBlock);
     status.appendChild(wrapper);
     activPlayerColor(getCurrentPlayer().color); // встановлюємо колір для поточного гравця
+    highlightOwnedProperties(); // підсвічуємо поля у власності гравців
+
+    //console.log("Players: ", players);
   });
 }
 
@@ -156,6 +159,7 @@ const createToken = (player, idx) => {
   token.className = "player-token";
   token.textContent = "";
   token.dataset.playerIndex = idx;
+
   const colors = ["green", "yellow", "red", "blue"];
   token.style.width = "25px";
   token.style.height = "25px";
@@ -785,4 +789,5 @@ export const playerMain = {
   getPlayerById,
   getAllPlayers,
   getCurrentPlayer,
+  updateUI,
 };

@@ -10,4 +10,4 @@ setTimeout(() => {
   playerMain.startPosition();
   initGame();
   loadingText.innerHTML = ""; // Прибираємо текст завантаження після 1.5 секунд
-}, 1500);
+}, 1000);

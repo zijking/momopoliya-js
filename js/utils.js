@@ -16,8 +16,7 @@ const activPlayerColor = (color) => {
     traideHeader.style.backgroundColor = color;
   }
 
-  const currentPlayerNameElem = document.getElementById("player-info");
-
+  //const currentPlayerNameElem = document.getElementById("player-info");
 };
 
 export { logAction, activPlayerColor };

@@ -122,6 +122,10 @@ const buildMap = () => {
   };
 };
 
+const getPlotByPosition = (position) => {
+  return allPlots.find((plot) => plot.position === position);
+};
+
 // 🔹 Функція для отримання всіх клітинок
 const getAllPlots = () => {
   return allPlots;
@@ -178,4 +182,5 @@ const getDetails = (plot) => {
 export default {
   buildMap,
   getAllPlots,
+  getPlotByPosition,
 };
